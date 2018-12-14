@@ -8,7 +8,6 @@ class App {
   }
   
   async createViews() {
-    console.log('createViews');
     await this.createAuth();
     new SongView(this.auth);
   }

@@ -11,7 +11,6 @@ class Auth {
         this.authorization = null;
       } else {
         const data = await response.json();
-        console.log(data);
         this.authorization = data.jwt;
         const now = new Date().getTime();
         setTimeout(this.check, data.token.expiresAt - now);
