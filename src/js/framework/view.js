@@ -43,7 +43,7 @@ class View {
   attachListeners() {
     if (this.listeners) {
       this.listeners.forEach(item => {
-        $(this.eventEmitter).on(item.e, this[item.fn].bind(this));
+        this.eventEmitter.on(item.e, this[item.fn].bind(this));
       });
     }
   }

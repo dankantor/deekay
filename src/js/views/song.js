@@ -1,4 +1,4 @@
-const View = require('./../../framework/view');
+const View = require('./../framework/view');
 
 const template = require('./../../handlebars/partials/hello.hbs');
 const el = '#content';
@@ -6,7 +6,8 @@ const events = [
   {'e': 'click', 'el': '#hello', 'fn': 'onClick'}
 ];
 const listeners = [
-  {'e': 'new:song', 'fn': 'onNewSong'}
+  {'e': 'new:song', 'fn': 'onNewSong'},
+  {'e': 'new:song', 'fn': 'onNewSong2'}
 ];
 const uri = 'https://api.fig.fm/searches';
 
@@ -24,11 +25,16 @@ class SongView extends View {
     let position = View.getData(e, 'position', true);
     console.log('position', position);
     let response = await this.getRemote(this.auth.authorization);
-    this.eventEmitter.trigger('new:song', response);
+    this.eventEmitter.emit('new:song', response);
   }
   
   onNewSong(e, data) {
-    console.log('onNewSong', data, e);
+    console.log('onNewSong', e, data);
+    this.eventEmitter.off('new:song', this.onNewSong2.bind(this));
+  }
+  
+  onNewSong2(e, data) {
+    console.log('onNewSong2', e, data);
   }
    
 }
