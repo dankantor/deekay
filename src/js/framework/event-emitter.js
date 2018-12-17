@@ -1,6 +1,6 @@
 class EventEmitter {
   
-  constructor() {
+  constructor(context) {
     if (!EventEmitter.instance) {
       EventEmitter.instance = this;
       this.listeners = {};
@@ -16,25 +16,25 @@ class EventEmitter {
   }
   
   off(type, fn) {
-    console.log(type, fn);
     if (typeof this.listeners[type] !== 'undefined') {
-      console.log(0);
       this.listeners[type].forEach((listener, i) => {
-        console.log('listener', listener);
-        if (listener === fn) {
-          console.log(1);
-          this.listeners[type].splice(i, 1);
+        if (fn) {
+          if (listener === fn) {
+            this.listeners[type].splice(i, 1);
+          } 
+        } else {
+          this.listeners[type] = [];
         }    
       });
     }
   }
   
-  emit(type, obj) {
+  trigger(type, obj) {
     if (this.listeners && typeof this.listeners[type] !== 'undefined' && this.listeners[type].length) {
   		const array = this.listeners[type].slice();
   		array.forEach(fn => {
     		const e = this._createEvent(type);
-    		fn.apply(e, [e, obj]);
+    		fn.apply(this.context, [e, obj]);
   		});
     }
   }

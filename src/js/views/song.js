@@ -3,11 +3,11 @@ const View = require('./../framework/view');
 const template = require('./../../handlebars/partials/hello.hbs');
 const el = '#content';
 const events = [
-  {'e': 'click', 'el': '#hello', 'fn': 'onClick'}
+  {'type': 'click', 'selector': '#hello', 'listener': 'onClick'},
+  {'type': 'new:song', 'listener': 'onNewSong'}
 ];
 const listeners = [
-  {'e': 'new:song', 'fn': 'onNewSong'},
-  {'e': 'new:song', 'fn': 'onNewSong2'}
+  {'e': 'new:song', 'fn': 'onNewSong'}
 ];
 const uri = 'https://api.fig.fm/searches';
 
@@ -17,7 +17,9 @@ class SongView extends View {
     super({el, template, events, listeners, uri});
     this.auth = auth;
     if (this.auth.authorization !== null) {
-      this.render();
+      this.render({
+        'foo': 'bar'
+      });
     }
   }
   
@@ -25,16 +27,15 @@ class SongView extends View {
     let position = View.getData(e, 'position', true);
     console.log('position', position);
     let response = await this.getRemote(this.auth.authorization);
-    this.eventEmitter.emit('new:song', response);
+    this.trigger('new:song', response);
   }
   
   onNewSong(e, data) {
-    console.log('onNewSong', e, data);
-    this.eventEmitter.off('new:song', this.onNewSong2.bind(this));
+    console.log('onNewSong', e, data, this);
   }
   
   onNewSong2(e, data) {
-    console.log('onNewSong2', e, data);
+    console.log('onNewSong2', this);
   }
    
 }

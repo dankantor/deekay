@@ -4,38 +4,45 @@ const EventEmitter = require('./event-emitter');
 class View {
   
   constructor(opts) {
-    this.eventEmitter = new EventEmitter(); 
-    this.$el = $(opts.el);
+    this.eventEmitter = new EventEmitter(this); 
+    this.$el = document.querySelector(opts.el);
     this.template = opts.template;
     this.events = opts.events;
     this.listeners = opts.listeners;
     this.uri = opts.uri;
+    this.boundFunctions = {};
     this.attachEvents();
     this.attachListeners();
   }
   
-  render(el = null, template = null, append = false) {
+  render(data = null, el = null, template = null, append = false) {
     let $el = this.$el;
     if (el !== null) {
       $el = $(el);
     }
     let html;
     if (template === null) {
-      html = this.template();
+      html = this.template(data);
     } else {
-      html = template();
+      html = template(data);
     }
     if (append === true) {
-      $el.append(html);
+      const existingHtml = $el.innerHTML;
+      $el.innerHTML = existingHtml + html;
     } else {
-      $el.html(html);
+      $el.innerHTML = html;
     }
   }
   
   attachEvents() {
     if (this.events) {
       this.events.forEach(item => {
-        $(document).on(item.e, item.el, this[item.fn].bind(this));
+        // document.addEventListener(item.e, )
+        let selector = item.selector;
+        if (item.selector === undefined) {
+          selector = window;
+        }
+        $(document).on(item.type, selector, this[item.listener].bind(this));
       });
     }
   }
@@ -43,14 +50,14 @@ class View {
   attachListeners() {
     if (this.listeners) {
       this.listeners.forEach(item => {
-        this.eventEmitter.on(item.e, this[item.fn].bind(this));
+        this.on(item.e, this[item.fn]);
       });
     }
   }
   
   static getData(e, attr, isInt = false) {
-    const target = $(e.currentTarget);
-    let data = target.attr(`data-${attr}`);
+    const target = e.currentTarget;
+    let data = target.dataset[attr];
     if (isInt === true) {
       data = parseInt(data);
     }
@@ -78,6 +85,29 @@ class View {
     }
     return result;
   }
+  
+  on(type, listener, context = null) {
+    if (context === null) {
+      context = this;
+    }
+    let boundFunction = listener.bind(context);
+    this.boundFunctions[listener] = boundFunction;
+    this.eventEmitter.on(type, boundFunction);
+  }
+  
+  off(type, fn) {
+    if (this.boundFunctions[fn]) {
+      this.eventEmitter.off(type, this.boundFunctions[fn]);
+    } else {
+      this.eventEmitter.off(type, fn);
+    }
+    
+  }
+  
+  trigger(type, obj) {
+    this.eventEmitter.trigger(type, obj);
+  }
+   
 }
 
 module.exports = View;
