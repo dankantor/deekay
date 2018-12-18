@@ -1,9 +1,9 @@
 {
-  "name": "framework-example",
+  "name": "framework",
   "version": "0.0.1",
-  "description": "Example App For Framework",
+  "description": "A lightweight vanilla js ES6 framework",
   "main": "src/js/framework/index.js",
-  "repository": "https://github.com/dankantor/framework-example",
+  "repository": "https://github.com/dankantor/framework",
   "author": "Dan Kantor",
   "private": true,
   "dependencies": {},
