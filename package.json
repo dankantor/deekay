@@ -2,7 +2,7 @@
   "name": "framework-example",
   "version": "0.0.1",
   "description": "Example App For Framework",
-  "main": "index.js",
+  "main": "src/js/framework/index.js",
   "repository": "https://github.com/dankantor/framework-example",
   "author": "Dan Kantor",
   "private": true,

@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var rename = require('gulp-rename');
 var handlebars = require('gulp-compile-handlebars');
 var requireDir = require('require-dir');
-var helpers = requireDir('./../src/handlebars/helpers');
+var helpers = requireDir('./../example/handlebars/helpers');
 var htmlmin = require('gulp-htmlmin');
 var replace = require('gulp-replace-task');
 var data = require('gulp-data');
@@ -10,7 +10,7 @@ var gulpif = require('gulp-if');
 var path = require('path');
 var _ = require('underscore');
 var Env = require('./env');
-var pageData = requireDir('./../src/handlebars/data');
+var pageData = requireDir('./../example/handlebars/data');
 
 gulp.task('handlebars', function() {
   var env = Env.get();
@@ -18,11 +18,11 @@ gulp.task('handlebars', function() {
   var options = {
     'ignorePartials': true,
     'batch' : [
-      './src/handlebars/partials/'
+      './example/handlebars/partials/'
     ],
     'helpers': helpers
   };
-  return gulp.src('src/handlebars/pages/**')
+  return gulp.src('example/handlebars/pages/**')
     .pipe(data(function(file) {
       var key = path.basename(file.path, '.hbs');
       var data = pageData[key];

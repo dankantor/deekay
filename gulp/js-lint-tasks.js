@@ -14,14 +14,14 @@ gulp.task('jslint', function () {
 });
 
 function dontFailOnError() {
-  return gulp.src(['src/**/*.js'])
+  return gulp.src(['example/**/*.js'])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failOnError().on('error', notify.onError("Error: <%= error.message %>")));
 };
 
 function failOnError() {
-  return gulp.src(['src/**/*.js'])
+  return gulp.src(['example/**/*.js'])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failOnError().on('error', function(e) {

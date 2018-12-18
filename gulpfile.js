@@ -6,7 +6,7 @@ var tasks = require('./gulp/tasks');
 // this runs all the tasks and puts your compiled files into a build dir
 gulp.task('build', tasks);
 
-// this will do an initial build, then build on any changes to src
+// this will do an initial build, then build on any changes to example dir
 gulp.task(
   'watch',
   tasks,
@@ -15,7 +15,7 @@ gulp.task(
 
 // watch for changes
 function watchFiles() {
-  gulp.watch(['src/js/**', 'src/handlebars/helpers/**'], ['jslint', 'browserify']);
-  gulp.watch('src/handlebars/**', ['handlebars']);
-  gulp.watch('src/handlebars/partials/**', ['browserify']);
+  gulp.watch(['example/js/**', 'example/handlebars/helpers/**'], ['jslint', 'browserify']);
+  gulp.watch('example/handlebars/**', ['handlebars']);
+  gulp.watch('example/handlebars/partials/**', ['browserify']);
 }

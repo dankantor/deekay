@@ -1,4 +1,4 @@
-const View = require('./../framework/view');
+const View = require('./../../../lib').View;
 
 const template = require('./../../handlebars/partials/hello.hbs');
 const el = '#content';
@@ -18,7 +18,6 @@ class SongView extends View {
   }
   
   show(params) {
-    console.log('show', params);
     this.render({
       'data': {
         'foo': params.username

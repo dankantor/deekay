@@ -1,4 +1,4 @@
-const Router = require('./framework/router');
+const Framework = require('./../../lib');
 const Auth = require('./auth');
 const SongView = require('./views/song');
 
@@ -9,7 +9,7 @@ class App {
   }
   
   async init() {
-    this.router = new Router();
+    this.router = new Framework.Router();
     await this.createAuth();
     this.createViews();
     this.router.execute();

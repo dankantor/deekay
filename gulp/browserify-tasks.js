@@ -32,7 +32,7 @@ gulp.task('browserify', function () {
     replacePatterns.push(obj);
   });
   var b = browserify({
-    entries: './src/js/index.js',
+    entries: './example/js/index.js',
     debug: true,
     insertGlobals: false,
     transform: ['babelify', 'require-globify', 'hbsfy']
