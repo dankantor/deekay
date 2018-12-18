@@ -16,9 +16,6 @@ gulp.task(
 // watch for changes
 function watchFiles() {
   gulp.watch(['src/js/**', 'src/handlebars/helpers/**'], ['jslint', 'browserify']);
-  gulp.watch('src/less/**', ['less']);
-  gulp.watch('src/images/**', ['imagemin']);
-  gulp.watch('src/fonts/**', ['fontcopy']);
   gulp.watch('src/handlebars/**', ['handlebars']);
   gulp.watch('src/handlebars/partials/**', ['browserify']);
 }

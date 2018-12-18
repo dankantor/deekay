@@ -18,20 +18,26 @@ class SongView extends View {
     this.auth = auth;
     if (this.auth.authorization !== null) {
       this.render({
-        'foo': 'bar'
+        'data': {
+          'foo': 'bar'
+        }
       });
     }
   }
   
   async onClick(e) {
-    let position = View.getData(e, 'position', true);
+    let position = View.getDataAttr(e, 'position', true);
     console.log('position', position);
-    let response = await this.getRemote(this.auth.authorization);
+    let response = await this.fetch({
+      'headers': {
+        'authorization': this.auth.authorization
+      }
+    });
     this.trigger('new:song', response);
   }
   
   onNewSong(e, data) {
-    console.log('onNewSong', e, data, this);
+    console.log('onNewSong', this);
   }
   
   onNewSong2(e, data) {

@@ -1,32 +1,48 @@
-const $ = require('jquery');
 const EventEmitter = require('./event-emitter');
+const DocumentListener = require('./document-listener');
 
 class View {
   
-  constructor(opts) {
-    this.eventEmitter = new EventEmitter(this); 
-    this.$el = document.querySelector(opts.el);
-    this.template = opts.template;
-    this.events = opts.events;
-    this.listeners = opts.listeners;
-    this.uri = opts.uri;
+  /**
+   * Create a new view
+   *
+   * Params:
+   *   el: the parent element that a template will be inserted in to
+   *   template: The handlebars template used for rendering
+   *   events: Any listeners to attach in the format 
+   *     {'type': 'click', 'selector': '#hello', 'listener': 'onClick'}. If a 'selector' is not included, the 
+   *     listener is considered global and can be subscribed to using 'on' below
+   *   uri: the remote uri that is used with fetch
+   */
+  constructor(params) {
+    this.eventEmitter = new EventEmitter();
+    this.documentListener = new DocumentListener();  
+    this.el = params.el;
+    this.template = params.template;
+    this.events = params.events;
+    this.uri = params.uri;
     this.boundFunctions = {};
     this.attachEvents();
-    this.attachListeners();
   }
   
-  render(data = null, el = null, template = null, append = false) {
-    let $el = this.$el;
-    if (el !== null) {
-      $el = $(el);
+  render(params) {
+    let $el = null;
+    if (params.el) {
+      $el = document.querySelector(params.el);
+    } else if (this.el) {
+      $el = document.querySelector(this.el);
+    } else {
+      throw new Error('render requires el passed param or this.el to be set');
     }
     let html;
-    if (template === null) {
-      html = this.template(data);
+    if (params.template) {
+      html = params.template(params.data);
+    } else if (this.template) {
+      html = this.template(params.data);
     } else {
-      html = template(data);
+      throw new Error('render requires template passed param or this.template to be set');
     }
-    if (append === true) {
+    if (params.append === true) {
       const existingHtml = $el.innerHTML;
       $el.innerHTML = existingHtml + html;
     } else {
@@ -37,26 +53,22 @@ class View {
   attachEvents() {
     if (this.events) {
       this.events.forEach(item => {
-        // document.addEventListener(item.e, )
-        let selector = item.selector;
-        if (item.selector === undefined) {
-          selector = window;
+        if (item.selector) {
+          let context = this;
+          if (item.context) {
+            context = item.context;
+          }
+          this.documentListener.on(item.type, item.selector, this[item.listener], context);
+        } else {
+          this.on(item.type, this[item.listener], item.context);
         }
-        $(document).on(item.type, selector, this[item.listener].bind(this));
+        
       });
     }
   }
   
-  attachListeners() {
-    if (this.listeners) {
-      this.listeners.forEach(item => {
-        this.on(item.e, this[item.fn]);
-      });
-    }
-  }
-  
-  static getData(e, attr, isInt = false) {
-    const target = e.currentTarget;
+  static getDataAttr(e, attr, isInt = false) {
+    const target = e.target;
     let data = target.dataset[attr];
     if (isInt === true) {
       data = parseInt(data);
@@ -64,17 +76,13 @@ class View {
     return data;
   }
   
-  async getRemote(authorization, uri = null) {
-    if (uri !== null) {
-      this.uri = uri;
+  async fetch(options) {
+    if (!options.uri) {
+      options.uri = this.uri;
     }
     const result = {'error': true};
     try {
-      const response = await fetch(this.uri, {
-        'headers': {
-          'Authorization': authorization
-        }
-      });
+      const response = await fetch(options.uri, options);
       result.status = response.status;
       result.data = await response.json();
       if (result.status <= 400) {

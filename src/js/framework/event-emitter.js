@@ -1,6 +1,6 @@
 class EventEmitter {
   
-  constructor(context) {
+  constructor() {
     if (!EventEmitter.instance) {
       EventEmitter.instance = this;
       this.listeners = {};
@@ -9,7 +9,7 @@ class EventEmitter {
   }
   
   on(type, listener) {
-    if(!this.listeners[type]){
+    if (!this.listeners[type]) {
       this.listeners[type] = [];
     }
     this.listeners[type].push(listener);

@@ -2,12 +2,5 @@
 module.exports = [
   'handlebars',
   'browserify',
-  'less',
-  'imagemin',
-  'fontcopy',
-  'extrascopy',
-  'jslint',
-  'sitemap',
-  'robots',
-  'rev'
+  'jslint'
 ];
