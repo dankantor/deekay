@@ -4,27 +4,28 @@ const template = require('./../../handlebars/partials/hello.hbs');
 const el = '#content';
 const events = [
   {'type': 'click', 'selector': '#hello', 'listener': 'onClick'},
-  {'type': 'new:song', 'listener': 'onNewSong'}
-];
-const listeners = [
-  {'e': 'new:song', 'fn': 'onNewSong'}
+  {'type': 'new:song', 'listener': 'onNewSong'},
+  {'type': 'router:execute', 'listener': 'onRouterExecute'}
 ];
 const uri = 'https://api.fig.fm/searches';
+const route = {'pathname': '/user/:username', 'name': 'Song'};
 
 class SongView extends View { 
   
   constructor(auth) {
-    super({el, template, events, listeners, uri});
+    super({el, template, events, uri, route});
     this.auth = auth;
-    if (this.auth.authorization !== null) {
-      this.render({
-        'data': {
-          'foo': 'bar'
-        }
-      });
-    }
   }
   
+  show(params) {
+    console.log('show', params);
+    this.render({
+      'data': {
+        'foo': params.username
+      }
+    });
+  }
+
   async onClick(e) {
     let position = View.getDataAttr(e, 'position', true);
     console.log('position', position);
@@ -40,8 +41,8 @@ class SongView extends View {
     console.log('onNewSong', this);
   }
   
-  onNewSong2(e, data) {
-    console.log('onNewSong2', this);
+  onRouterExecute(e, data) {
+    console.log('onRouterExecute', e, data);
   }
    
 }

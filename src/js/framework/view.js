@@ -1,5 +1,6 @@
 const EventEmitter = require('./event-emitter');
 const DocumentListener = require('./document-listener');
+const Router = require('./router');
 
 class View {
   
@@ -16,13 +17,14 @@ class View {
    */
   constructor(params) {
     this.eventEmitter = new EventEmitter();
-    this.documentListener = new DocumentListener();  
+    this.documentListener = new DocumentListener(); 
+    this.router = new Router(); 
     this.el = params.el;
     this.template = params.template;
-    this.events = params.events;
     this.uri = params.uri;
     this.boundFunctions = {};
-    this.attachEvents();
+    this.attachEvents(params.events);
+    this.attachRoute(params.route);
   }
   
   render(params) {
@@ -50,9 +52,9 @@ class View {
     }
   }
   
-  attachEvents() {
-    if (this.events) {
-      this.events.forEach(item => {
+  attachEvents(events) {
+    if (events) {
+      events.forEach(item => {
         if (item.selector) {
           let context = this;
           if (item.context) {
@@ -63,6 +65,24 @@ class View {
           this.on(item.type, this[item.listener], item.context);
         }
         
+      });
+    }
+  }
+  
+  attachRoute(route) {
+    if (route) {
+      let listener;
+      if (route.listener) {
+        listener = this[route.listener].bind(this);
+      } else if (this.show) {
+        listener = this.show.bind(this);
+      } else {
+        throw new Error('a route requires either a listener property or show method on View');
+      }
+      this.router.add({
+        'pathname': route.pathname,
+        'name': route.name,
+        'listener': listener
       });
     }
   }

@@ -6,13 +6,7 @@
   "repository": "https://github.com/dankantor/framework-example",
   "author": "Dan Kantor",
   "private": true,
-  "dependencies": {
-    "jquery": "3.3.1",
-    "local-storage-json": "0.0.1",
-    "raven-js": "3.26.3",
-    "session-storage-json": "0.0.1",
-    "underscore": "1.9.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "8.2.6",
