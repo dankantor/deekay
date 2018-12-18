@@ -2,7 +2,7 @@
   "name": "framework",
   "version": "0.0.1",
   "description": "A lightweight vanilla js ES6 framework",
-  "main": "src/js/framework/index.js",
+  "main": "lib/index.js",
   "repository": "https://github.com/dankantor/framework",
   "author": "Dan Kantor",
   "private": true,
