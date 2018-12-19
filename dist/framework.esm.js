@@ -2,6 +2,7 @@ import _regeneratorRuntime from 'babel-runtime/regenerator';
 import _asyncToGenerator from 'babel-runtime/helpers/asyncToGenerator';
 import _classCallCheck from 'babel-runtime/helpers/classCallCheck';
 import _createClass from 'babel-runtime/helpers/createClass';
+import _typeof from 'babel-runtime/helpers/typeof';
 
 var EventEmitter = function () {
   function EventEmitter() {
@@ -226,7 +227,7 @@ var Query = function () {
   function Query(selector) {
     _classCallCheck(this, Query);
 
-    this.nodeList = document.querySelectorAll(selector);
+    this.selector = selector;
     return this;
   }
 
@@ -279,9 +280,38 @@ var Query = function () {
     key: 'empty',
     value: function empty() {
       this.nodeList.forEach(function (node) {
+        console.log(node);
         node.innerHTML = '';
       });
       return this;
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.nodeList.forEach(function (node) {
+        node.parentNode.removeChild(node);
+      });
+      return this;
+    }
+  }, {
+    key: 'nodeList',
+    get: function get() {
+      if (typeof this.selector === 'string') {
+        return document.querySelectorAll(this.selector);
+      } else if (_typeof(this.selector) === 'object') {
+        if (this.selector.length) {
+          return this.selector;
+        } else {
+          return [this.selector];
+        }
+      } else {
+        throw new TypeError('selector must be of type string or object');
+      }
+    }
+  }, {
+    key: 'length',
+    get: function get() {
+      return this.nodeList.length;
     }
   }, {
     key: 'html',
