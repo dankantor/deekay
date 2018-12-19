@@ -4,7 +4,6 @@
   "description": "A lightweight vanilla js ES6 framework",
   "main": "dist/framework.cjs.js",
   "module": "dist/framework.esm.js",
-  "browser": "dist/framework.umd.js",
   "repository": "https://github.com/dankantor/framework",
   "author": "Dan Kantor",
   "private": true,
