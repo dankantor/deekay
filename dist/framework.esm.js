@@ -1,59 +1,11 @@
-var asyncToGenerator = function (fn) {
-  return function () {
-    var gen = fn.apply(this, arguments);
-    return new Promise(function (resolve, reject) {
-      function step(key, arg) {
-        try {
-          var info = gen[key](arg);
-          var value = info.value;
-        } catch (error) {
-          reject(error);
-          return;
-        }
-
-        if (info.done) {
-          resolve(value);
-        } else {
-          return Promise.resolve(value).then(function (value) {
-            step("next", value);
-          }, function (err) {
-            step("throw", err);
-          });
-        }
-      }
-
-      return step("next");
-    });
-  };
-};
-
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
+import _regeneratorRuntime from 'babel-runtime/regenerator';
+import _asyncToGenerator from 'babel-runtime/helpers/asyncToGenerator';
+import _classCallCheck from 'babel-runtime/helpers/classCallCheck';
+import _createClass from 'babel-runtime/helpers/createClass';
 
 var EventEmitter = function () {
   function EventEmitter() {
-    classCallCheck(this, EventEmitter);
+    _classCallCheck(this, EventEmitter);
 
     if (!EventEmitter.instance) {
       EventEmitter.instance = this;
@@ -62,7 +14,7 @@ var EventEmitter = function () {
     return EventEmitter.instance;
   }
 
-  createClass(EventEmitter, [{
+  _createClass(EventEmitter, [{
     key: 'on',
     value: function on(type, listener) {
       if (!this.listeners[type]) {
@@ -109,12 +61,13 @@ var EventEmitter = function () {
       };
     }
   }]);
+
   return EventEmitter;
 }();
 
 var Router = function () {
   function Router() {
-    classCallCheck(this, Router);
+    _classCallCheck(this, Router);
 
     if (!Router.instance) {
       Router.instance = this;
@@ -127,7 +80,7 @@ var Router = function () {
     return Router.instance;
   }
 
-  createClass(Router, [{
+  _createClass(Router, [{
     key: 'add',
     value: function add(params) {
       this.listeners[params.pathname] = {
@@ -223,12 +176,13 @@ var Router = function () {
       return matches;
     }
   }]);
+
   return Router;
 }();
 
 var DocumentListener = function () {
   function DocumentListener() {
-    classCallCheck(this, DocumentListener);
+    _classCallCheck(this, DocumentListener);
 
     if (!DocumentListener.instance) {
       DocumentListener.instance = this;
@@ -237,7 +191,7 @@ var DocumentListener = function () {
     return DocumentListener.instance;
   }
 
-  createClass(DocumentListener, [{
+  _createClass(DocumentListener, [{
     key: 'on',
     value: function on(type, selector, listener, context) {
       if (!this.events[type]) {
@@ -264,6 +218,7 @@ var DocumentListener = function () {
       });
     }
   }]);
+
   return DocumentListener;
 }();
 
@@ -281,7 +236,7 @@ var View = function () {
    *   uri: the remote uri that is used with fetch
    */
   function View(params) {
-    classCallCheck(this, View);
+    _classCallCheck(this, View);
 
     this.eventEmitter = new EventEmitter();
     this.documentListener = new DocumentListener();
@@ -294,7 +249,7 @@ var View = function () {
     this.attachRoute(params.route);
   }
 
-  createClass(View, [{
+  _createClass(View, [{
     key: 'render',
     value: function render(params) {
       var $el = null;
@@ -371,9 +326,9 @@ var View = function () {
 
       return fetch;
     }(function () {
-      var _ref = asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(options) {
+      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(options) {
         var result, response;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
@@ -461,6 +416,7 @@ var View = function () {
       return data;
     }
   }]);
+
   return View;
 }();
 

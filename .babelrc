@@ -8,6 +8,10 @@
     ]
   ],
   "plugins": [
-    "external-helpers"
+    "external-helpers",
+    ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true
+    }]
   ]
 }
