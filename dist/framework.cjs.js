@@ -228,6 +228,106 @@ var DocumentListener = function () {
   return DocumentListener;
 }();
 
+var Query = function () {
+  function Query(selector) {
+    _classCallCheck(this, Query);
+
+    this.nodeList = document.querySelectorAll(selector);
+    return this;
+  }
+
+  _createClass(Query, [{
+    key: 'addClass',
+    value: function addClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.add(className);
+      });
+      return this;
+    }
+  }, {
+    key: 'removeClass',
+    value: function removeClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.remove(className);
+      });
+      return this;
+    }
+  }, {
+    key: 'prepend',
+    value: function prepend(content) {
+      this.nodeList.forEach(function (node) {
+        var html = node.innerHTML;
+        node.innerHTML = content + html;
+      });
+      return this;
+    }
+  }, {
+    key: 'append',
+    value: function append(content) {
+      this.nodeList.forEach(function (node) {
+        var html = node.innerHTML;
+        node.innerHTML = html + content;
+      });
+      return this;
+    }
+  }, {
+    key: 'empty',
+    value: function empty() {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = '';
+      });
+      return this;
+    }
+  }, {
+    key: 'html',
+    get: function get() {
+      if (this.nodeList && this.nodeList.length > 0) {
+        return this.nodeList[0].innerHTML;
+      } else {
+        return '';
+      }
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'text',
+    get: function get() {
+      if (this.nodeList && this.nodeList.length > 0) {
+        return this.nodeList[0].innerText;
+      } else {
+        return '';
+      }
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerText = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'val',
+    get: function get() {
+      if (this.nodeList && this.nodeList.length > 0) {
+        return this.nodeList[0].value;
+      } else {
+        return '';
+      }
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.value = content;
+      });
+      return this;
+    }
+  }]);
+
+  return Query;
+}();
+
 var View = function () {
 
   /**
@@ -247,7 +347,10 @@ var View = function () {
     this.eventEmitter = new EventEmitter();
     this.documentListener = new DocumentListener();
     this.router = new Router();
-    this.el = params.el;
+    if (params.el) {
+      this.el = params.el;
+      this.$el = new Query(this.el);
+    }
     this.template = params.template;
     this.uri = params.uri;
     this.boundFunctions = {};
@@ -259,26 +362,36 @@ var View = function () {
     key: 'render',
     value: function render(params) {
       var $el = null;
-      if (params.el) {
-        $el = document.querySelector(params.el);
-      } else if (this.el) {
-        $el = document.querySelector(this.el);
+      var html = null;
+      var data = {};
+      if (params) {
+        if (params.data) {
+          data = params.data;
+        }
+        if (params.el) {
+          $el = new Query(params.el);
+        }
+        if (params.template) {
+          html = params.template(data);
+        }
       } else {
-        throw new Error('render requires el passed param or this.el to be set');
+        if (this.el) {
+          $el = new Query(this.el);
+        }
+        if (this.template) {
+          html = this.template(data);
+        }
       }
-      var html = void 0;
-      if (params.template) {
-        html = params.template(params.data);
-      } else if (this.template) {
-        html = this.template(params.data);
-      } else {
-        throw new Error('render requires template passed param or this.template to be set');
-      }
-      if (params.append === true) {
-        var existingHtml = $el.innerHTML;
-        $el.innerHTML = existingHtml + html;
-      } else {
-        $el.innerHTML = html;
+      console.log('html', html);
+      if ($el !== null) {
+        if (params && params.append === true) {
+          console.log('append');
+          $el.append(html);
+        } else if (params && params.prepend === true) {
+          $el.prepend(html);
+        } else {
+          $el.html = html;
+        }
       }
     }
   }, {
@@ -432,3 +545,4 @@ exports.View = View;
 exports.Router = Router;
 exports.DocumentListener = DocumentListener;
 exports.EventEmitter = EventEmitter;
+exports.Query = Query;
