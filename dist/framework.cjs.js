@@ -374,16 +374,18 @@ var View = function () {
         if (params.template) {
           html = params.template(data);
         }
-      } else {
+      }
+      if ($el === null) {
         if (this.el) {
           $el = new Query(this.el);
         }
+      }
+      if (html === null) {
         if (this.template) {
           html = this.template(data);
         }
       }
-      console.log('html', html);
-      if ($el !== null) {
+      if (html !== null) {
         if (params && params.append === true) {
           console.log('append');
           $el.append(html);
