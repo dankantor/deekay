@@ -253,6 +253,17 @@ var Query = function () {
       return this;
     }
   }, {
+    key: 'hasClass',
+    value: function hasClass(className) {
+      var _hasClass = false;
+      this.nodeList.forEach(function (node) {
+        if (node.classList.contains(className) === true) {
+          _hasClass = true;
+        }
+      });
+      return _hasClass;
+    }
+  }, {
     key: 'prepend',
     value: function prepend(content) {
       this.nodeList.forEach(function (node) {
@@ -387,7 +398,6 @@ var View = function () {
       }
       if (html !== null) {
         if (params && params.append === true) {
-          console.log('append');
           $el.append(html);
         } else if (params && params.prepend === true) {
           $el.prepend(html);
