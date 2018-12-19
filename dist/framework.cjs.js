@@ -286,7 +286,6 @@ var Query = function () {
     key: 'empty',
     value: function empty() {
       this.nodeList.forEach(function (node) {
-        console.log(node);
         node.innerHTML = '';
       });
       return this;
