@@ -265,6 +265,11 @@ var Query = function () {
       return _hasClass;
     }
   }, {
+    key: 'toggleClass',
+    value: function toggleClass(className) {
+      // todo: what boolean do you return? ie. first node, all (hash), one (like hasClass)
+    }
+  }, {
     key: 'prepend',
     value: function prepend(content) {
       this.nodeList.forEach(function (node) {
@@ -307,11 +312,14 @@ var Query = function () {
         if (this.selector.length) {
           return this.selector;
         } else {
-          return [this.selector];
+          if (this.selector.target) {
+            return [this.selector.target];
+          } else {
+            return [this.selector];
+          }
         }
-      } else {
-        throw new TypeError('selector must be of type string or object');
       }
+      return null;
     }
   }, {
     key: 'length',
@@ -363,6 +371,29 @@ var Query = function () {
       });
       return this;
     }
+  }, {
+    key: 'data',
+    get: function get() {
+      if (this.nodeList !== null) {
+        var target = this.nodeList[0];
+        var dataset = null;
+        var keys = Object.keys(target.dataset);
+        if (keys.length === 0) {
+          return null;
+        }
+        dataset = {};
+        keys.forEach(function (key) {
+          var value = target.dataset[key];
+          dataset[key] = value;
+          var parsedInt = parseInt(value);
+          if (parsedInt !== NaN) {
+            dataset[key] = parsedInt;
+          }
+        });
+        return dataset;
+      }
+      return null;
+    }
   }]);
 
   return Query;
@@ -398,7 +429,22 @@ var View = function () {
     this.attachRoute(params.route);
   }
 
+  // todo: pattern is different from other methods bc it checks 'this' before defaultValue (which is passed in)
+
+
   _createClass(View, [{
+    key: 'getValue',
+    value: function getValue(params, key) {
+      var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      if (params && params[key]) {
+        return params[key];
+      } else if (this[key]) {
+        return this[key];
+      }
+      return defaultValue;
+    }
+  }, {
     key: 'render',
     value: function render(params) {
       var $el = null;
@@ -533,7 +579,7 @@ var View = function () {
         }, _callee, this, [[2, 13]]);
       }));
 
-      return function (_x2) {
+      return function (_x3) {
         return _ref.apply(this, arguments);
       };
     }())
@@ -562,6 +608,31 @@ var View = function () {
     key: 'trigger',
     value: function trigger(type, obj) {
       this.eventEmitter.trigger(type, obj);
+    }
+
+    // todo: remove this (it's in Query now) 
+
+  }, {
+    key: 'show',
+    value: function show(params) {
+      var el = this.getValue(params, 'el');
+      if (el !== null) {
+        var showClass = this.getValue(params, 'showClass', 'show');
+        var hideClass = this.getValue(params, 'hideClass', 'hide');
+        new Query(el).removeClass(hideClass).addClass(showClass);
+      }
+      return this;
+    }
+  }, {
+    key: 'hide',
+    value: function hide(params) {
+      var el = this.getValue(params, 'el');
+      if (el !== null) {
+        var showClass = this.getValue(params, 'showClass', 'show');
+        var hideClass = this.getValue(params, 'hideClass', 'hide');
+        new Query(el).removeClass(showClass).addClass(hideClass);
+      }
+      return this;
     }
   }], [{
     key: 'getDataAttr',
