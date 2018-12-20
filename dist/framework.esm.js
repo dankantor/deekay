@@ -227,10 +227,7 @@ var DocumentListener = function () {
     key: '_trigger',
     value: function _trigger(e, event, queryItem, node, listener) {
       if (queryItem === node) {
-        // todo: this doesnt work. Cant set target on readOnly event
-        // e.currentTarget = e.target;
-        // e.target = queryItem;
-        listener.apply(event.context, [e]);
+        listener.apply(event.context, [e, queryItem]);
         return true;
       }
       if (node.parentNode) {
@@ -249,7 +246,6 @@ var Query = function () {
 
     this.selector = selector;
     this.cachedNodeList = null;
-    this.ran = Math.random();
     return this;
   }
 
