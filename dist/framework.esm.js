@@ -209,14 +209,34 @@ var DocumentListener = function () {
   }, {
     key: 'listener',
     value: function listener(e) {
+      var _this = this;
+
+      var triggered = false;
       this.events[e.type].forEach(function (event) {
-        var query = document.querySelectorAll(event.selector);
-        query.forEach(function (item) {
-          if (item === e.target) {
-            event.listener.apply(event.context, [e]);
-          }
-        });
+        if (triggered === false) {
+          var query = document.querySelectorAll(event.selector);
+          query.forEach(function (item) {
+            if (triggered === false) {
+              triggered = _this._trigger(e, event, item, e.target, event.listener);
+            }
+          });
+        }
       });
+    }
+  }, {
+    key: '_trigger',
+    value: function _trigger(e, event, queryItem, node, listener) {
+      if (queryItem === node) {
+        // todo: this doesnt work. Cant set target on readOnly event
+        // e.currentTarget = e.target;
+        // e.target = queryItem;
+        listener.apply(event.context, [e]);
+        return true;
+      }
+      if (node.parentNode) {
+        return this._trigger(e, event, queryItem, node.parentNode, listener);
+      }
+      return false;
     }
   }]);
 
