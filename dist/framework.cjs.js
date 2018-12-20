@@ -215,14 +215,34 @@ var DocumentListener = function () {
   }, {
     key: 'listener',
     value: function listener(e) {
+      var _this = this;
+
+      var triggered = false;
       this.events[e.type].forEach(function (event) {
-        var query = document.querySelectorAll(event.selector);
-        query.forEach(function (item) {
-          if (item === e.target) {
-            event.listener.apply(event.context, [e]);
-          }
-        });
+        if (triggered === false) {
+          var query = document.querySelectorAll(event.selector);
+          query.forEach(function (item) {
+            if (triggered === false) {
+              triggered = _this._trigger(e, event, item, e.target, event.listener);
+            }
+          });
+        }
       });
+    }
+  }, {
+    key: '_trigger',
+    value: function _trigger(e, event, queryItem, node, listener) {
+      if (queryItem === node) {
+        // todo: this doesnt work. Cant set target on readOnly event
+        // e.currentTarget = e.target;
+        // e.target = queryItem;
+        listener.apply(event.context, [e]);
+        return true;
+      }
+      if (node.parentNode) {
+        return this._trigger(e, event, queryItem, node.parentNode, listener);
+      }
+      return false;
     }
   }]);
 
@@ -234,10 +254,21 @@ var Query = function () {
     _classCallCheck(this, Query);
 
     this.selector = selector;
+    this.cachedNodeList = null;
+    this.ran = Math.random();
     return this;
   }
 
   _createClass(Query, [{
+    key: '_clearCachedNodeList',
+    value: function _clearCachedNodeList() {
+      var _this = this;
+
+      setTimeout(function () {
+        _this.cachedNodeList = null;
+      }, 200);
+    }
+  }, {
     key: 'addClass',
     value: function addClass(className) {
       this.nodeList.forEach(function (node) {
@@ -263,6 +294,11 @@ var Query = function () {
         }
       });
       return _hasClass;
+    }
+  }, {
+    key: 'toggleClass',
+    value: function toggleClass(className) {
+      // todo: what boolean do you return? ie. first node, all (hash), one (like hasClass)
     }
   }, {
     key: 'prepend',
@@ -301,17 +337,25 @@ var Query = function () {
   }, {
     key: 'nodeList',
     get: function get() {
+      if (this.cachedNodeList !== null) {
+        return this.cachedNodeList;
+      }
       if (typeof this.selector === 'string') {
-        return document.querySelectorAll(this.selector);
+        this.cachedNodeList = document.querySelectorAll(this.selector);
+        this._clearCachedNodeList();
+        return this.cachedNodeList;
       } else if (_typeof(this.selector) === 'object') {
         if (this.selector.length) {
-          return this.selector;
+          this.cachedNodeList = this.selector;
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
         } else {
-          return [this.selector];
+          this.cachedNodeList = [this.selector];
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
         }
-      } else {
-        throw new TypeError('selector must be of type string or object');
       }
+      return null;
     }
   }, {
     key: 'length',
@@ -363,6 +407,25 @@ var Query = function () {
       });
       return this;
     }
+  }, {
+    key: 'data',
+    get: function get() {
+      if (this.nodeList !== null) {
+        var target = this.nodeList[0];
+        var dataset = null;
+        var keys = Object.keys(target.dataset);
+        if (keys.length === 0) {
+          return null;
+        }
+        dataset = {};
+        keys.forEach(function (key) {
+          var value = target.dataset[key];
+          dataset[key] = parseInt(value) ? parseInt(value) : value;
+        });
+        return dataset;
+      }
+      return null;
+    }
   }]);
 
   return Query;
@@ -374,70 +437,62 @@ var View = function () {
    * Create a new view
    *
    * Params:
-   *   el: the parent element that a template will be inserted in to
+   *   selector: the element that a template will be inserted in to
    *   template: The handlebars template used for rendering
    *   events: Any listeners to attach in the format 
    *     {'type': 'click', 'selector': '#hello', 'listener': 'onClick'}. If a 'selector' is not included, the 
    *     listener is considered global and can be subscribed to using 'on' below
    *   uri: the remote uri that is used with fetch
+   *   route: the browser url that will show this view
+   *   
    */
   function View(params) {
     _classCallCheck(this, View);
 
-    this.eventEmitter = new EventEmitter();
-    this.documentListener = new DocumentListener();
-    this.router = new Router();
-    if (params.el) {
-      this.el = params.el;
-      this.$el = new Query(this.el);
-    }
-    this.template = params.template;
-    this.uri = params.uri;
+    this.cParams = params;
     this.boundFunctions = {};
-    this.attachEvents(params.events);
-    this.attachRoute(params.route);
+    this.addEvents(params.events);
+    this.addRoute(params.route);
   }
 
   _createClass(View, [{
+    key: 'getValue',
+    value: function getValue(key, list) {
+      var value = null;
+      var found = list.find(function (item) {
+        if (item[key]) {
+          return true;
+        }
+      });
+      if (found !== undefined) {
+        value = found[key];
+      }
+      return value;
+    }
+  }, {
     key: 'render',
     value: function render(params) {
-      var $el = null;
-      var html = null;
+      var selector = this.getValue('selector', [params, this.cParams]);
+      var template = this.getValue('template', [params, this.cParams]);
       var data = {};
-      if (params) {
-        if (params.data) {
-          data = params.data;
-        }
-        if (params.el) {
-          $el = new Query(params.el);
-        }
-        if (params.template) {
-          html = params.template(data);
-        }
+      if (params && params.data) {
+        data = params.data;
       }
-      if ($el === null) {
-        if (this.el) {
-          $el = new Query(this.el);
-        }
-      }
-      if (html === null) {
-        if (this.template) {
-          html = this.template(data);
-        }
-      }
-      if (html !== null) {
+      if (selector !== null && template !== null) {
+        var html = template(data);
+        var $selector = new Query(selector);
         if (params && params.append === true) {
-          $el.append(html);
+          $selector.append(html);
         } else if (params && params.prepend === true) {
-          $el.prepend(html);
+          $selector.prepend(html);
         } else {
-          $el.html = html;
+          $selector.html = html;
         }
       }
     }
   }, {
-    key: 'attachEvents',
-    value: function attachEvents(events) {
+    key: 'addEvents',
+    value: function addEvents(events) {
       var _this = this;
 
       if (events) {
@@ -455,8 +510,8 @@ var View = function () {
       }
     }
   }, {
-    key: 'attachRoute',
-    value: function attachRoute(route) {
+    key: 'addRoute',
+    value: function addRoute(route) {
       if (route) {
         var listener = void 0;
         if (route.listener) {
@@ -486,19 +541,17 @@ var View = function () {
 
       return fetch;
     }(function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(options) {
-        var result, response;
+      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(params) {
+        var uri, result, response;
         return _regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!options.uri) {
-                  options.uri = this.uri;
-                }
+                uri = this.getValue('uri', [params, this.cParams]);
                 result = { 'error': true };
                 _context.prev = 2;
                 _context.next = 5;
-                return fetch(options.uri, options);
+                return fetch(uri, params);
 
               case 5:
                 response = _context.sent;
@@ -563,24 +616,71 @@ var View = function () {
     value: function trigger(type, obj) {
       this.eventEmitter.trigger(type, obj);
     }
-  }], [{
-    key: 'getDataAttr',
-    value: function getDataAttr(e, attr) {
-      var isInt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-      var target = e.target;
-      var data = target.dataset[attr];
-      if (isInt === true) {
-        data = parseInt(data);
+  }, {
+    key: 'show',
+    value: function show(params) {
+      var selector = this.getValue('selector', [params, this.cParams]);
+      if (selector !== null) {
+        var showClass = this.getValue('showClass', [params, { 'showClass': 'show' }]);
+        var hideClass = this.getValue('hideClass', [params, { 'hideClass': 'hide' }]);
+        new Query(selector).removeClass(hideClass).addClass(showClass);
       }
-      return data;
+      return this;
+    }
+  }, {
+    key: 'hide',
+    value: function hide(params) {
+      var selector = this.getValue('selector', [params, this.cParams]);
+      if (selector !== null) {
+        var showClass = this.getValue('showClass', [params, { 'showClass': 'show' }]);
+        var hideClass = this.getValue('hideClass', [params, { 'hideClass': 'hide' }]);
+        new Query(selector).removeClass(showClass).addClass(hideClass);
+      }
+      return this;
+    }
+  }, {
+    key: 'conditionalShowHide',
+    value: function conditionalShowHide(conditional, params) {
+      if (conditional === true) {
+        return this.show(params);
+      } else {
+        return this.hide(params);
+      }
+      return this;
+    }
+  }, {
+    key: 'eventEmitter',
+    get: function get() {
+      if (!this._eventEmitter) {
+        this._eventEmitter = new EventEmitter();
+      }
+      return this._eventEmitter;
+    }
+  }, {
+    key: 'documentListener',
+    get: function get() {
+      if (!this._documentListener) {
+        this._documentListener = new DocumentListener();
+      }
+      return this._documentListener;
+    }
+  }, {
+    key: 'router',
+    get: function get() {
+      if (!this._router) {
+        this._router = new Router();
+      }
+      return this._router;
+    }
+  }, {
+    key: '$selector',
+    get: function get() {
+      return new Query(this.cParams.selector);
     }
   }]);
 
   return View;
 }();
-
-// export default class View;
 
 exports.View = View;
 exports.Router = Router;
