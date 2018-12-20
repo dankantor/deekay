@@ -1,7 +1,7 @@
 const View = require('./../../../lib').View;
 
 const template = require('./../../handlebars/partials/hello.hbs');
-const el = '#content';
+const selector = '#content';
 const events = [
   {'type': 'click', 'selector': '#hello', 'listener': 'onClick'},
   {'type': 'new:song', 'listener': 'onNewSong'},
@@ -13,7 +13,7 @@ const route = {'pathname': '/user/:username', 'name': 'Song'};
 class SongView extends View { 
   
   constructor(auth) {
-    super({el, template, events, uri, route});
+    super({selector, template, events, uri, route});
     this.auth = auth;
   }
   

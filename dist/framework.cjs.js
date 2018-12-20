@@ -254,10 +254,21 @@ var Query = function () {
     _classCallCheck(this, Query);
 
     this.selector = selector;
+    this.cachedNodeList = null;
+    this.ran = Math.random();
     return this;
   }
 
   _createClass(Query, [{
+    key: '_clearCachedNodeList',
+    value: function _clearCachedNodeList() {
+      var _this = this;
+
+      setTimeout(function () {
+        _this.cachedNodeList = null;
+      }, 200);
+    }
+  }, {
     key: 'addClass',
     value: function addClass(className) {
       this.nodeList.forEach(function (node) {
@@ -326,17 +337,22 @@ var Query = function () {
   }, {
     key: 'nodeList',
     get: function get() {
+      if (this.cachedNodeList !== null) {
+        return this.cachedNodeList;
+      }
       if (typeof this.selector === 'string') {
-        return document.querySelectorAll(this.selector);
+        this.cachedNodeList = document.querySelectorAll(this.selector);
+        this._clearCachedNodeList();
+        return this.cachedNodeList;
       } else if (_typeof(this.selector) === 'object') {
         if (this.selector.length) {
-          return this.selector;
+          this.cachedNodeList = this.selector;
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
         } else {
-          if (this.selector.target) {
-            return [this.selector.target];
-          } else {
-            return [this.selector];
-          }
+          this.cachedNodeList = [this.selector];
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
         }
       }
       return null;
@@ -404,11 +420,7 @@ var Query = function () {
         dataset = {};
         keys.forEach(function (key) {
           var value = target.dataset[key];
-          dataset[key] = value;
-          var parsedInt = parseInt(value);
-          if (parsedInt !== NaN) {
-            dataset[key] = parsedInt;
-          }
+          dataset[key] = parseInt(value) ? parseInt(value) : value;
         });
         return dataset;
       }
@@ -425,85 +437,62 @@ var View = function () {
    * Create a new view
    *
    * Params:
-   *   el: the parent element that a template will be inserted in to
+   *   selector: the element that a template will be inserted in to
    *   template: The handlebars template used for rendering
    *   events: Any listeners to attach in the format 
    *     {'type': 'click', 'selector': '#hello', 'listener': 'onClick'}. If a 'selector' is not included, the 
    *     listener is considered global and can be subscribed to using 'on' below
    *   uri: the remote uri that is used with fetch
+   *   route: the browser url that will show this view
+   *   
    */
   function View(params) {
     _classCallCheck(this, View);
 
-    this.eventEmitter = new EventEmitter();
-    this.documentListener = new DocumentListener();
-    this.router = new Router();
-    if (params.el) {
-      this.el = params.el;
-      this.$el = new Query(this.el);
-    }
-    this.template = params.template;
-    this.uri = params.uri;
+    this.cParams = params;
     this.boundFunctions = {};
-    this.attachEvents(params.events);
-    this.attachRoute(params.route);
+    this.addEvents(params.events);
+    this.addRoute(params.route);
   }
-
-  // todo: pattern is different from other methods bc it checks 'this' before defaultValue (which is passed in)
-
 
   _createClass(View, [{
     key: 'getValue',
-    value: function getValue(params, key) {
-      var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      if (params && params[key]) {
-        return params[key];
-      } else if (this[key]) {
-        return this[key];
+    value: function getValue(key, list) {
+      var value = null;
+      var found = list.find(function (item) {
+        if (item[key]) {
+          return true;
+        }
+      });
+      if (found !== undefined) {
+        value = found[key];
       }
-      return defaultValue;
+      return value;
     }
   }, {
     key: 'render',
     value: function render(params) {
-      var $el = null;
-      var html = null;
+      var selector = this.getValue('selector', [params, this.cParams]);
+      var template = this.getValue('template', [params, this.cParams]);
       var data = {};
-      if (params) {
-        if (params.data) {
-          data = params.data;
-        }
-        if (params.el) {
-          $el = new Query(params.el);
-        }
-        if (params.template) {
-          html = params.template(data);
-        }
+      if (params && params.data) {
+        data = params.data;
       }
-      if ($el === null) {
-        if (this.el) {
-          $el = new Query(this.el);
-        }
-      }
-      if (html === null) {
-        if (this.template) {
-          html = this.template(data);
-        }
-      }
-      if (html !== null) {
+      if (selector !== null && template !== null) {
+        var html = template(data);
+        var $selector = new Query(selector);
         if (params && params.append === true) {
-          $el.append(html);
+          $selector.append(html);
         } else if (params && params.prepend === true) {
-          $el.prepend(html);
+          $selector.prepend(html);
         } else {
-          $el.html = html;
+          $selector.html = html;
         }
       }
     }
   }, {
-    key: 'attachEvents',
-    value: function attachEvents(events) {
+    key: 'addEvents',
+    value: function addEvents(events) {
       var _this = this;
 
       if (events) {
@@ -521,8 +510,8 @@ var View = function () {
       }
     }
   }, {
-    key: 'attachRoute',
-    value: function attachRoute(route) {
+    key: 'addRoute',
+    value: function addRoute(route) {
       if (route) {
         var listener = void 0;
         if (route.listener) {
@@ -552,19 +541,17 @@ var View = function () {
 
       return fetch;
     }(function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(options) {
-        var result, response;
+      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(params) {
+        var uri, result, response;
         return _regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!options.uri) {
-                  options.uri = this.uri;
-                }
+                uri = this.getValue('uri', [params, this.cParams]);
                 result = { 'error': true };
                 _context.prev = 2;
                 _context.next = 5;
-                return fetch(options.uri, options);
+                return fetch(uri, params);
 
               case 5:
                 response = _context.sent;
@@ -599,7 +586,7 @@ var View = function () {
         }, _callee, this, [[2, 13]]);
       }));
 
-      return function (_x3) {
+      return function (_x2) {
         return _ref.apply(this, arguments);
       };
     }())
@@ -629,49 +616,71 @@ var View = function () {
     value: function trigger(type, obj) {
       this.eventEmitter.trigger(type, obj);
     }
-
-    // todo: remove this (it's in Query now) 
-
   }, {
     key: 'show',
     value: function show(params) {
-      var el = this.getValue(params, 'el');
-      if (el !== null) {
-        var showClass = this.getValue(params, 'showClass', 'show');
-        var hideClass = this.getValue(params, 'hideClass', 'hide');
-        new Query(el).removeClass(hideClass).addClass(showClass);
+      var selector = this.getValue('selector', [params, this.cParams]);
+      if (selector !== null) {
+        var showClass = this.getValue('showClass', [params, { 'showClass': 'show' }]);
+        var hideClass = this.getValue('hideClass', [params, { 'hideClass': 'hide' }]);
+        new Query(selector).removeClass(hideClass).addClass(showClass);
       }
       return this;
     }
   }, {
     key: 'hide',
     value: function hide(params) {
-      var el = this.getValue(params, 'el');
-      if (el !== null) {
-        var showClass = this.getValue(params, 'showClass', 'show');
-        var hideClass = this.getValue(params, 'hideClass', 'hide');
-        new Query(el).removeClass(showClass).addClass(hideClass);
+      var selector = this.getValue('selector', [params, this.cParams]);
+      if (selector !== null) {
+        var showClass = this.getValue('showClass', [params, { 'showClass': 'show' }]);
+        var hideClass = this.getValue('hideClass', [params, { 'hideClass': 'hide' }]);
+        new Query(selector).removeClass(showClass).addClass(hideClass);
       }
       return this;
     }
-  }], [{
-    key: 'getDataAttr',
-    value: function getDataAttr(e, attr) {
-      var isInt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-      var target = e.target;
-      var data = target.dataset[attr];
-      if (isInt === true) {
-        data = parseInt(data);
+  }, {
+    key: 'conditionalShowHide',
+    value: function conditionalShowHide(conditional, params) {
+      if (conditional === true) {
+        return this.show(params);
+      } else {
+        return this.hide(params);
       }
-      return data;
+      return this;
+    }
+  }, {
+    key: 'eventEmitter',
+    get: function get() {
+      if (!this._eventEmitter) {
+        this._eventEmitter = new EventEmitter();
+      }
+      return this._eventEmitter;
+    }
+  }, {
+    key: 'documentListener',
+    get: function get() {
+      if (!this._documentListener) {
+        this._documentListener = new DocumentListener();
+      }
+      return this._documentListener;
+    }
+  }, {
+    key: 'router',
+    get: function get() {
+      if (!this._router) {
+        this._router = new Router();
+      }
+      return this._router;
+    }
+  }, {
+    key: '$selector',
+    get: function get() {
+      return new Query(this.cParams.selector);
     }
   }]);
 
   return View;
 }();
-
-// export default class View;
 
 exports.View = View;
 exports.Router = Router;
