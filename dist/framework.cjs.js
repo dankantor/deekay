@@ -72,6 +72,66 @@ var EventEmitter = function () {
   return EventEmitter;
 }();
 
+var DocumentListener = function () {
+  function DocumentListener() {
+    _classCallCheck(this, DocumentListener);
+
+    if (!DocumentListener.instance) {
+      DocumentListener.instance = this;
+      this.events = {};
+    }
+    return DocumentListener.instance;
+  }
+
+  _createClass(DocumentListener, [{
+    key: 'on',
+    value: function on(type, selector, listener, context) {
+      if (!this.events[type]) {
+        this.events[type] = [];
+        document.addEventListener(type, this.listener.bind(this));
+      }
+      var event = {
+        'selector': selector,
+        'listener': listener,
+        'context': context
+      };
+      this.events[type].push(event);
+    }
+  }, {
+    key: 'listener',
+    value: function listener(e) {
+      var _this = this;
+
+      console.log('document listener');
+      var triggered = false;
+      this.events[e.type].forEach(function (event) {
+        if (triggered === false) {
+          var query = document.querySelectorAll(event.selector);
+          query.forEach(function (item) {
+            if (triggered === false) {
+              triggered = _this._trigger(e, event, item, e.target, event.listener);
+            }
+          });
+        }
+      });
+    }
+  }, {
+    key: '_trigger',
+    value: function _trigger(e, event, target, node, listener) {
+      if (target === node) {
+        listener.apply(event.context, [e, target]);
+        return true;
+      }
+      if (node.parentNode) {
+        return this._trigger(e, event, target, node.parentNode, listener);
+      }
+      return false;
+    }
+  }]);
+
+  return DocumentListener;
+}();
+
 var Router = function () {
   function Router() {
     _classCallCheck(this, Router);
@@ -82,7 +142,8 @@ var Router = function () {
       this.eventEmitter = new EventEmitter();
       this.listeners = {};
       window.addEventListener('popstate', this.onPopstate.bind(this));
-      document.addEventListener('click', this.onClick.bind(this));
+      this.documentListener = new DocumentListener();
+      this.documentListener.on('click', 'a', this.onClick.bind(this), this);
     }
     return Router.instance;
   }
@@ -102,30 +163,30 @@ var Router = function () {
     }
   }, {
     key: 'onClick',
-    value: function onClick(e) {
-      if (e.target.tagName === 'A') {
-        return this.executeAnchorClick(e);
-      }
+    value: function onClick(e, target) {
+      e.preventDefault();
+      return this.executeAnchorClick(target);
     }
   }, {
     key: 'executeAnchorClick',
-    value: function executeAnchorClick(e) {
-      e.preventDefault();
-      var href = e.target.getAttribute('href');
-      var target = e.target.getAttribute('target');
-      if (target !== '_blank' && target !== '_self') {
+    value: function executeAnchorClick(target) {
+      console.log('executeAnchorClick');
+      var href = target.getAttribute('href');
+      var targetAttr = target.getAttribute('target');
+      if (targetAttr !== '_blank' && targetAttr !== '_self') {
         this.navigate({
           'href': href
         });
         return false;
       }
-      if (target === '_self') {
+      if (targetAttr === '_self') {
         location.href = href;
       }
     }
   }, {
     key: 'navigate',
     value: function navigate(params) {
+      console.log('navigate');
       if (params.href !== this.pathname) {
         if (params.replace && params.replace === true) {
           history.replaceState(null, null, params.href);
@@ -185,65 +246,6 @@ var Router = function () {
   }]);
 
   return Router;
-}();
-
-var DocumentListener = function () {
-  function DocumentListener() {
-    _classCallCheck(this, DocumentListener);
-
-    if (!DocumentListener.instance) {
-      DocumentListener.instance = this;
-      this.events = {};
-    }
-    return DocumentListener.instance;
-  }
-
-  _createClass(DocumentListener, [{
-    key: 'on',
-    value: function on(type, selector, listener, context) {
-      if (!this.events[type]) {
-        this.events[type] = [];
-        document.addEventListener(type, this.listener.bind(this));
-      }
-      var event = {
-        'selector': selector,
-        'listener': listener,
-        'context': context
-      };
-      this.events[type].push(event);
-    }
-  }, {
-    key: 'listener',
-    value: function listener(e) {
-      var _this = this;
-
-      var triggered = false;
-      this.events[e.type].forEach(function (event) {
-        if (triggered === false) {
-          var query = document.querySelectorAll(event.selector);
-          query.forEach(function (item) {
-            if (triggered === false) {
-              triggered = _this._trigger(e, event, item, e.target, event.listener);
-            }
-          });
-        }
-      });
-    }
-  }, {
-    key: '_trigger',
-    value: function _trigger(e, event, queryItem, node, listener) {
-      if (queryItem === node) {
-        listener.apply(event.context, [e, queryItem]);
-        return true;
-      }
-      if (node.parentNode) {
-        return this._trigger(e, event, queryItem, node.parentNode, listener);
-      }
-      return false;
-    }
-  }]);
-
-  return DocumentListener;
 }();
 
 var Query = function () {
@@ -600,17 +602,17 @@ var View = function () {
     }
   }, {
     key: 'off',
-    value: function off(type, fn) {
-      if (this.boundFunctions[fn]) {
-        this.eventEmitter.off(type, this.boundFunctions[fn]);
+    value: function off(type, listener) {
+      if (this.boundFunctions[listener]) {
+        this.eventEmitter.off(type, this.boundFunctions[listener]);
       } else {
-        this.eventEmitter.off(type, fn);
+        this.eventEmitter.off(type, listener);
       }
     }
   }, {
     key: 'trigger',
-    value: function trigger(type, obj) {
-      this.eventEmitter.trigger(type, obj);
+    value: function trigger(type, data) {
+      this.eventEmitter.trigger(type, data);
     }
   }, {
     key: 'show',
