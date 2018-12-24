@@ -96,7 +96,6 @@ var DocumentListener = function () {
     value: function listener(e) {
       var _this = this;
 
-      console.log('document listener');
       var triggered = false;
       this.events[e.type].forEach(function (event) {
         if (triggered === false) {
@@ -164,13 +163,14 @@ var Router = function () {
   }, {
     key: 'executeAnchorClick',
     value: function executeAnchorClick(target) {
-      console.log('executeAnchorClick');
       var href = target.getAttribute('href');
       var targetAttr = target.getAttribute('target');
       if (targetAttr !== '_blank' && targetAttr !== '_self') {
-        this.navigate({
-          'href': href
-        });
+        if (href !== this.pathname) {
+          this.navigate({
+            'href': href
+          });
+        }
         return false;
       }
       if (targetAttr === '_self') {
@@ -180,15 +180,12 @@ var Router = function () {
   }, {
     key: 'navigate',
     value: function navigate(params) {
-      console.log('navigate');
-      if (params.href !== this.pathname) {
-        if (params.replace && params.replace === true) {
-          history.replaceState(null, null, params.href);
-          this.execute();
-        } else {
-          history.pushState(null, null, params.href);
-          this.execute();
-        }
+      if (params.replace && params.replace === true) {
+        history.replaceState(null, null, params.href);
+        this.execute();
+      } else {
+        history.pushState(null, null, params.href);
+        this.execute();
       }
     }
   }, {
@@ -196,21 +193,19 @@ var Router = function () {
     value: function execute() {
       var _this = this;
 
-      if (location.pathname !== this.pathname) {
-        var keys = Object.keys(this.listeners);
-        keys.forEach(function (key) {
-          var matches = _this.match(key, location.pathname);
-          if (matches) {
-            var route = _this.listeners[key];
-            route.listener.apply(null, [matches]);
-            _this.eventEmitter.trigger('router:execute', {
-              'pathname': location.pathname,
-              'name': route.name,
-              'matches': matches
-            });
-          }
-        });
-      }
+      var keys = Object.keys(this.listeners);
+      keys.forEach(function (key) {
+        var matches = _this.match(key, location.pathname);
+        if (matches) {
+          var route = _this.listeners[key];
+          route.listener.apply(null, [matches]);
+          _this.eventEmitter.trigger('router:execute', {
+            'pathname': location.pathname,
+            'name': route.name,
+            'matches': matches
+          });
+        }
+      });
       this.pathname = location.pathname;
     }
   }, {
@@ -417,6 +412,21 @@ var Query = function () {
         return dataset;
       }
       return null;
+    }
+  }, {
+    key: 'checked',
+    get: function get() {
+      if (this.nodeList && this.nodeList.length > 0) {
+        return this.nodeList[0].checked;
+      } else {
+        return '';
+      }
+    },
+    set: function set(bool) {
+      this.nodeList.forEach(function (node) {
+        node.checked = bool;
+      });
+      return this;
     }
   }]);
 
