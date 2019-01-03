@@ -519,7 +519,7 @@ var View = function () {
     value: function getValue(key, list) {
       var value = null;
       var found = list.find(function (item) {
-        if (item[key]) {
+        if (item && item[key]) {
           return true;
         }
       });
