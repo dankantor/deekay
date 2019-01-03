@@ -1,1 +1,3 @@
 # framework
+
+npm run build

@@ -242,7 +242,6 @@ var Query = function () {
     _classCallCheck(this, Query);
 
     this.selector = selector;
-    this.cachedNodeList = null;
     return this;
   }
 
@@ -252,13 +251,13 @@ var Query = function () {
       var _this = this;
 
       setTimeout(function () {
-        _this.cachedNodeList = null;
-      }, 200);
+        _this.cachedNodeList = undefined;
+      }, 20);
     }
   }, {
     key: 'addClass',
     value: function addClass(className) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.classList.add(className);
       });
       return this;
@@ -266,7 +265,7 @@ var Query = function () {
   }, {
     key: 'removeClass',
     value: function removeClass(className) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.classList.remove(className);
       });
       return this;
@@ -275,7 +274,7 @@ var Query = function () {
     key: 'hasClass',
     value: function hasClass(className) {
       var _hasClass = false;
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         if (node.classList.contains(className) === true) {
           _hasClass = true;
         }
@@ -288,27 +287,35 @@ var Query = function () {
       // todo: what boolean do you return? ie. first node, all (hash), one (like hasClass)
     }
   }, {
+    key: 'stringToElement',
+    value: function stringToElement(content) {
+      var template = document.createElement('template');
+      content = content.trim();
+      template.innerHTML = content;
+      return template.content;
+    }
+  }, {
     key: 'prepend',
     value: function prepend(content) {
-      this.nodeList.forEach(function (node) {
-        var html = node.innerHTML;
-        node.innerHTML = content + html;
+      var html = this.stringToElement(content);
+      this.nodeListAsIterable.forEach(function (node) {
+        node.prepend(html);
       });
       return this;
     }
   }, {
     key: 'append',
     value: function append(content) {
-      this.nodeList.forEach(function (node) {
-        var html = node.innerHTML;
-        node.innerHTML = html + content;
+      var html = this.stringToElement(content);
+      this.nodeListAsIterable.forEach(function (node) {
+        node.append(html);
       });
       return this;
     }
   }, {
     key: 'empty',
     value: function empty() {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.innerHTML = '';
       });
       return this;
@@ -316,7 +323,7 @@ var Query = function () {
   }, {
     key: 'remove',
     value: function remove() {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.parentNode.removeChild(node);
       });
       return this;
@@ -324,7 +331,7 @@ var Query = function () {
   }, {
     key: 'nodeList',
     get: function get() {
-      if (this.cachedNodeList !== null) {
+      if (this.cachedNodeList) {
         return this.cachedNodeList;
       }
       if (typeof this.selector === 'string') {
@@ -332,17 +339,35 @@ var Query = function () {
         this._clearCachedNodeList();
         return this.cachedNodeList;
       } else if (_typeof(this.selector) === 'object') {
-        if (this.selector.length) {
-          this.cachedNodeList = this.selector;
-          this._clearCachedNodeList();
-          return this.cachedNodeList;
-        } else {
-          this.cachedNodeList = [this.selector];
-          this._clearCachedNodeList();
-          return this.cachedNodeList;
+        this.cachedNodeList = this.selector;
+        this._clearCachedNodeList();
+        return this.cachedNodeList;
+      }
+      return undefined;
+    }
+  }, {
+    key: 'firstNode',
+    get: function get() {
+      if (this.nodeList) {
+        if (this.nodeList instanceof NodeList) {
+          return this.nodeList.item(0);
+        } else if (this.nodeList instanceof Node) {
+          return this.nodeList;
         }
       }
-      return null;
+      return undefined;
+    }
+  }, {
+    key: 'nodeListAsIterable',
+    get: function get() {
+      if (this.nodeList) {
+        if (this.nodeList instanceof NodeList) {
+          return this.nodeList;
+        } else if (this.nodeList instanceof Node) {
+          return [this.nodeList];
+        }
+      }
+      return undefined;
     }
   }, {
     key: 'length',
@@ -352,14 +377,13 @@ var Query = function () {
   }, {
     key: 'html',
     get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].innerHTML;
-      } else {
-        return '';
+      if (this.firstNode) {
+        return this.firstNode.innerHTML;
       }
+      return undefined;
     },
     set: function set(content) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.innerHTML = content;
       });
       return this;
@@ -367,14 +391,13 @@ var Query = function () {
   }, {
     key: 'text',
     get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].innerText;
-      } else {
-        return '';
+      if (this.firstNode) {
+        return this.firstNode.innerText;
       }
+      return undefined;
     },
     set: function set(content) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.innerText = content;
       });
       return this;
@@ -382,14 +405,13 @@ var Query = function () {
   }, {
     key: 'val',
     get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].value;
-      } else {
-        return '';
+      if (this.firstNode) {
+        return this.firstNode.value;
       }
+      return undefined;
     },
     set: function set(content) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.value = content;
       });
       return this;
@@ -397,33 +419,33 @@ var Query = function () {
   }, {
     key: 'data',
     get: function get() {
-      if (this.nodeList !== null) {
-        var target = this.nodeList[0];
+      var _this2 = this;
+
+      if (this.firstNode) {
         var dataset = null;
-        var keys = Object.keys(target.dataset);
+        var keys = Object.keys(this.firstNode.dataset);
         if (keys.length === 0) {
           return null;
         }
         dataset = {};
         keys.forEach(function (key) {
-          var value = target.dataset[key];
+          var value = _this2.firstNode.dataset[key];
           dataset[key] = parseInt(value) ? parseInt(value) : value;
         });
         return dataset;
       }
-      return null;
+      return undefined;
     }
   }, {
     key: 'checked',
     get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].checked;
-      } else {
-        return '';
+      if (this.firstNode) {
+        return this.firstNode.checked;
       }
+      return undefined;
     },
     set: function set(bool) {
-      this.nodeList.forEach(function (node) {
+      this.nodeListAsIterable.forEach(function (node) {
         node.checked = bool;
       });
       return this;
