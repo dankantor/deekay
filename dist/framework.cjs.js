@@ -72,6 +72,253 @@ var EventEmitter = function () {
   return EventEmitter;
 }();
 
+var Query = function () {
+  function Query(selector) {
+    _classCallCheck(this, Query);
+
+    this.selector = selector;
+    return this;
+  }
+
+  _createClass(Query, [{
+    key: '_clearCachedNodeList',
+    value: function _clearCachedNodeList() {
+      var _this = this;
+
+      setTimeout(function () {
+        _this.cachedNodeList = undefined;
+      }, 20);
+    }
+  }, {
+    key: 'addClass',
+    value: function addClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.add(className);
+      });
+      return this;
+    }
+  }, {
+    key: 'removeClass',
+    value: function removeClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.remove(className);
+      });
+      return this;
+    }
+  }, {
+    key: 'hasClass',
+    value: function hasClass(className) {
+      var _hasClass = false;
+      this.nodeList.forEach(function (node) {
+        if (node.classList.contains(className) === true) {
+          _hasClass = true;
+        }
+      });
+      return _hasClass;
+    }
+  }, {
+    key: 'toggleClass',
+    value: function toggleClass(className) {
+      this.nodeList.forEach(function (node) {
+        if (node.classList.contains(className) === true) {
+          node.classList.remove(className);
+        } else {
+          node.classList.add(className);
+        }
+      });
+      return this;
+    }
+  }, {
+    key: 'stringToElement',
+    value: function stringToElement(content) {
+      var template = document.createElement('template');
+      content = content.trim();
+      template.innerHTML = content;
+      return template.content;
+    }
+  }, {
+    key: 'prepend',
+    value: function prepend(content) {
+      var html = this.stringToElement(content);
+      this.nodeList.forEach(function (node) {
+        node.prepend(html);
+      });
+      return this;
+    }
+  }, {
+    key: 'append',
+    value: function append(content) {
+      var html = this.stringToElement(content);
+      this.nodeList.forEach(function (node) {
+        node.append(html);
+      });
+      return this;
+    }
+  }, {
+    key: 'empty',
+    value: function empty() {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = '';
+      });
+      return this;
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.nodeList.forEach(function (node) {
+        node.parentNode.removeChild(node);
+      });
+      return this;
+    }
+  }, {
+    key: 'getAttr',
+    value: function getAttr(name) {
+      if (this.firstNode) {
+        return this.firstNode.getAttribute(name);
+      }
+      return undefined;
+    }
+  }, {
+    key: 'setAttr',
+    value: function setAttr(name, value) {
+      this.nodeList.forEach(function (node) {
+        node.setAttribute(name, value);
+      });
+      return this;
+    }
+  }, {
+    key: 'removeAttr',
+    value: function removeAttr(name) {
+      this.nodeList.forEach(function (node) {
+        node.removeAttribute(name);
+      });
+      return this;
+    }
+  }, {
+    key: 'nodeList',
+    get: function get() {
+      if (this.cachedNodeList) {
+        return this.cachedNodeList;
+      }
+      if (typeof this.selector === 'string') {
+        this.cachedNodeList = document.querySelectorAll(this.selector);
+        this._clearCachedNodeList();
+        return this.cachedNodeList;
+      } else if (_typeof(this.selector) === 'object') {
+        if (this.selector instanceof NodeList) {
+          this.cachedNodeList = this.selector;
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
+        } else if (this.selector instanceof Node) {
+          this.cachedNodeList = [this.selector];
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
+        }
+      }
+      return undefined;
+    }
+  }, {
+    key: 'firstNode',
+    get: function get() {
+      if (this.nodeList) {
+        if (this.nodeList instanceof NodeList) {
+          return this.nodeList.item(0);
+        } else if (this.nodeList instanceof Node) {
+          return this.nodeList;
+        } else if (this.nodeList instanceof Array) {
+          return this.nodeList[0];
+        }
+      }
+      return undefined;
+    }
+  }, {
+    key: 'length',
+    get: function get() {
+      return this.nodeList.length;
+    }
+  }, {
+    key: 'html',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.innerHTML;
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'text',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.innerText;
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerText = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'val',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.value.trim();
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.value = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'data',
+    get: function get() {
+      var _this2 = this;
+
+      if (this.firstNode) {
+        var dataset = null;
+        var keys = Object.keys(this.firstNode.dataset);
+        if (keys.length === 0) {
+          return null;
+        }
+        dataset = {};
+        keys.forEach(function (key) {
+          var value = _this2.firstNode.dataset[key];
+          dataset[key] = parseInt(value) ? parseInt(value) : value;
+        });
+        return dataset;
+      }
+      return undefined;
+    }
+  }, {
+    key: 'checked',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.checked;
+      }
+      return undefined;
+    },
+    set: function set(bool) {
+      this.nodeList.forEach(function (node) {
+        try {
+          node.checked = bool;
+        } catch (err) {}
+      });
+      return this;
+    }
+  }]);
+
+  return Query;
+}();
+
 var DocumentListener = function () {
   function DocumentListener() {
     _classCallCheck(this, DocumentListener);
@@ -118,7 +365,7 @@ var DocumentListener = function () {
     key: '_trigger',
     value: function _trigger(e, event, target, node, listener) {
       if (target === node) {
-        listener.apply(event.context, [e, target]);
+        listener.apply(event.context, [e, new Query(target)]);
         return true;
       }
       if (node.parentNode) {
@@ -169,8 +416,8 @@ var Router = function () {
   }, {
     key: 'executeAnchorClick',
     value: function executeAnchorClick(target) {
-      var href = target.getAttribute('href');
-      var targetAttr = target.getAttribute('target');
+      var href = target.getAttr('href');
+      var targetAttr = target.getAttr('target');
       if (targetAttr !== '_blank' && targetAttr !== '_self') {
         if (href !== this.pathname) {
           this.navigate({
@@ -241,224 +488,6 @@ var Router = function () {
   }]);
 
   return Router;
-}();
-
-var Query = function () {
-  function Query(selector) {
-    _classCallCheck(this, Query);
-
-    this.selector = selector;
-    return this;
-  }
-
-  _createClass(Query, [{
-    key: '_clearCachedNodeList',
-    value: function _clearCachedNodeList() {
-      var _this = this;
-
-      setTimeout(function () {
-        _this.cachedNodeList = undefined;
-      }, 20);
-    }
-  }, {
-    key: 'addClass',
-    value: function addClass(className) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.classList.add(className);
-      });
-      return this;
-    }
-  }, {
-    key: 'removeClass',
-    value: function removeClass(className) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.classList.remove(className);
-      });
-      return this;
-    }
-  }, {
-    key: 'hasClass',
-    value: function hasClass(className) {
-      var _hasClass = false;
-      this.nodeListAsIterable.forEach(function (node) {
-        if (node.classList.contains(className) === true) {
-          _hasClass = true;
-        }
-      });
-      return _hasClass;
-    }
-  }, {
-    key: 'toggleClass',
-    value: function toggleClass(className) {
-      // todo: what boolean do you return? ie. first node, all (hash), one (like hasClass)
-    }
-  }, {
-    key: 'stringToElement',
-    value: function stringToElement(content) {
-      var template = document.createElement('template');
-      content = content.trim();
-      template.innerHTML = content;
-      return template.content;
-    }
-  }, {
-    key: 'prepend',
-    value: function prepend(content) {
-      var html = this.stringToElement(content);
-      this.nodeListAsIterable.forEach(function (node) {
-        node.prepend(html);
-      });
-      return this;
-    }
-  }, {
-    key: 'append',
-    value: function append(content) {
-      var html = this.stringToElement(content);
-      this.nodeListAsIterable.forEach(function (node) {
-        node.append(html);
-      });
-      return this;
-    }
-  }, {
-    key: 'empty',
-    value: function empty() {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.innerHTML = '';
-      });
-      return this;
-    }
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.parentNode.removeChild(node);
-      });
-      return this;
-    }
-  }, {
-    key: 'nodeList',
-    get: function get() {
-      if (this.cachedNodeList) {
-        return this.cachedNodeList;
-      }
-      if (typeof this.selector === 'string') {
-        this.cachedNodeList = document.querySelectorAll(this.selector);
-        this._clearCachedNodeList();
-        return this.cachedNodeList;
-      } else if (_typeof(this.selector) === 'object') {
-        this.cachedNodeList = this.selector;
-        this._clearCachedNodeList();
-        return this.cachedNodeList;
-      }
-      return undefined;
-    }
-  }, {
-    key: 'firstNode',
-    get: function get() {
-      if (this.nodeList) {
-        if (this.nodeList instanceof NodeList) {
-          return this.nodeList.item(0);
-        } else if (this.nodeList instanceof Node) {
-          return this.nodeList;
-        }
-      }
-      return undefined;
-    }
-  }, {
-    key: 'nodeListAsIterable',
-    get: function get() {
-      if (this.nodeList) {
-        if (this.nodeList instanceof NodeList) {
-          return this.nodeList;
-        } else if (this.nodeList instanceof Node) {
-          return [this.nodeList];
-        }
-      }
-      return undefined;
-    }
-  }, {
-    key: 'length',
-    get: function get() {
-      return this.nodeList.length;
-    }
-  }, {
-    key: 'html',
-    get: function get() {
-      if (this.firstNode) {
-        return this.firstNode.innerHTML;
-      }
-      return undefined;
-    },
-    set: function set(content) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.innerHTML = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'text',
-    get: function get() {
-      if (this.firstNode) {
-        return this.firstNode.innerText;
-      }
-      return undefined;
-    },
-    set: function set(content) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.innerText = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'val',
-    get: function get() {
-      if (this.firstNode) {
-        return this.firstNode.value;
-      }
-      return undefined;
-    },
-    set: function set(content) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.value = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'data',
-    get: function get() {
-      var _this2 = this;
-
-      if (this.firstNode) {
-        var dataset = null;
-        var keys = Object.keys(this.firstNode.dataset);
-        if (keys.length === 0) {
-          return null;
-        }
-        dataset = {};
-        keys.forEach(function (key) {
-          var value = _this2.firstNode.dataset[key];
-          dataset[key] = parseInt(value) ? parseInt(value) : value;
-        });
-        return dataset;
-      }
-      return undefined;
-    }
-  }, {
-    key: 'checked',
-    get: function get() {
-      if (this.firstNode) {
-        return this.firstNode.checked;
-      }
-      return undefined;
-    },
-    set: function set(bool) {
-      this.nodeListAsIterable.forEach(function (node) {
-        node.checked = bool;
-      });
-      return this;
-    }
-  }]);
-
-  return Query;
 }();
 
 var View = function () {
