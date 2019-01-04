@@ -527,9 +527,10 @@ var View = function () {
     _classCallCheck(this, View);
 
     this.cParams = params;
-    this.boundFunctions = {};
+    this.binded = {};
     this.addEvents(params.events);
     this.addRoute(params.route);
+    this.addBinded(params.binded);
   }
 
   _createClass(View, [{
@@ -606,6 +607,18 @@ var View = function () {
       }
     }
   }, {
+    key: 'addBinded',
+    value: function addBinded(binded) {
+      var _this2 = this;
+
+      if (binded) {
+        binded.forEach(function (item) {
+          var listener = _this2[item].bind(_this2);
+          _this2.binded[item] = listener;
+        });
+      }
+    }
+  }, {
     key: 'fetch',
     value: function (_fetch) {
       function fetch(_x) {
@@ -676,14 +689,14 @@ var View = function () {
         context = this;
       }
       var boundFunction = listener.bind(context);
-      this.boundFunctions[listener] = boundFunction;
+      this.binded[listener] = boundFunction;
       this.eventEmitter.on(type, boundFunction);
     }
   }, {
     key: 'off',
     value: function off(type, listener) {
-      if (this.boundFunctions[listener]) {
-        this.eventEmitter.off(type, this.boundFunctions[listener]);
+      if (this.binded[listener]) {
+        this.eventEmitter.off(type, this.binded[listener]);
       } else {
         this.eventEmitter.off(type, listener);
       }
