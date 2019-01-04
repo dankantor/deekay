@@ -195,6 +195,30 @@ var Query = function () {
       return this;
     }
   }, {
+    key: 'on',
+    value: function on(type, listener) {
+      this.nodeList.forEach(function (node) {
+        node.addEventListener(type, listener, false);
+      });
+      return this;
+    }
+  }, {
+    key: 'off',
+    value: function off(type, listener) {
+      this.nodeList.forEach(function (node) {
+        node.removeEventListener(type, listener);
+      });
+      return this;
+    }
+  }, {
+    key: 'css',
+    value: function css(name, value) {
+      this.nodeList.forEach(function (node) {
+        node.style[name] = value;
+      });
+      return this;
+    }
+  }, {
     key: 'nodeList',
     get: function get() {
       if (this.cachedNodeList) {
