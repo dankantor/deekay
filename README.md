@@ -95,7 +95,7 @@ View is a class that provides a small subset of the functionality provided by Ba
 ### Query
 
 Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
-what it includes. 
+what it includes. [Documentation](docs/Query.html)
 
 ```js
   const {Query} = require('deekay');
@@ -108,8 +108,13 @@ what it includes.
 ### Router
 
 Router listens to browser location changes and fires when a known route is matched. If there is no match, a
-'router:nomatch' event will be fired. All View instances automatically have the router set as a member, 
-so can be accessed with view.router.
+'router:nomatch' event will be fired.
+
+Router will listen for all clicks on anchor elements. When anchors are clicked the browser will not 
+navigate to the new url, but will instead change the History state. If the anchor has `target=_self` the 
+browser will perform a full navigation. If the anchor has `target=_blank'` it will open a new tab/window. 
+
+[Documentation](docs/Router.html)
 
 ```js
   const {Router} = require('deekay');
@@ -120,6 +125,43 @@ so can be accessed with view.router.
   // call this after all views are created to trigger the initial route. 
   router.execute();
 ```
+
+All View instances automatically have the router set as a member, and will usually be accessed that way.
+
+```js
+  const {View} = require('deekay');
+  const template = require('./templates/not-found.hbs');
+  const events = [
+    {'type': 'router:nomatch', 'listener': 'show'},
+    {'type': 'click', 'selector': '#home', 'listener': 'onClick'}
+  ];
+  
+  // extend the View class
+  class NotFoundView extends View {
+    
+    constructor() {
+      super({events});
+    }
+    
+    show(params) {
+      this.render();
+    }
+    
+    // #home was clicked. Navigate our router to '/'.
+    onClick(e, target) {
+      this.router.navigate({'href': '/'});
+    }  
+     
+  }
+```
+
+### DocumentListener
+
+[Documentation](docs/DocumentListener.html)
+
+### EventEmitter
+
+[Documentation](docs/EventEmitter.html)
 
 ## Build from source
 
