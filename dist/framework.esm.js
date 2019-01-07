@@ -465,6 +465,7 @@ var Router = function () {
       var _this = this;
 
       var keys = Object.keys(this.listeners);
+      var foundMatch = false;
       keys.forEach(function (key) {
         var matches = _this.match(key, location.pathname);
         if (matches) {
@@ -475,8 +476,14 @@ var Router = function () {
             'name': route.name,
             'matches': matches
           });
+          foundMatch = true;
         }
       });
+      if (foundMatch === false) {
+        this.eventEmitter.trigger('router:nomatch', {
+          'pathname': location.pathname
+        });
+      }
       this.pathname = location.pathname;
     }
   }, {
