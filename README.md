@@ -17,6 +17,9 @@ So I decided to create a simple framework that only does that small bit.
 
 ### View
 
+View is a class that provides a small subset of the functionality provided by Backbone. 
+[Documentation](docs/View.html)
+
 ```js
   // create our variables up top
   const {View} = require('deekay');
@@ -38,9 +41,9 @@ So I decided to create a simple framework that only does that small bit.
       super({selector, template, events, route, uri, binded});
     }
     
-    // callback when our route is triggered. Grab the 'query' property from params and render it 
-    // in our template. The template will be inserted into #content. Notice that 'this' is already set to 
-    // the SearchView instance. 
+    // callback when our route is triggered. Grab the 'query' property from params and render 
+    // it in our template. The template will be inserted into #content. Notice that 'this' 
+    // is already set to the SearchView instance. 
     show(params){
       this.query = params.query;
       this.render({
@@ -50,9 +53,9 @@ So I decided to create a simple framework that only does that small bit.
       });
     }
     
-    // callback when our form is submitted. Call our API with the query using this.fetch. The uri for fetch
-    // has already been set up top. If there is an error, the returned object from this.fetch will have the 
-    // 'error' property set to true. 
+    // callback when our form is submitted. Call our API with the query using this.fetch.
+    // The uri for fetch has already been set up top. If there is an error, the returned object
+    // from this.fetch will have the 'error' property set to true. 
     async onSubmit(e, target) {
       e.preventDefault();
       const response = await this.fetch({
@@ -68,8 +71,8 @@ So I decided to create a simple framework that only does that small bit.
       return false; 
     }
     
-    // callback when a custom 'search:refresh' event is fired from another view because we included it in our 
-    // events array up top.
+    // callback when a custom 'search:refresh' event is fired from another view because we 
+    // included it in our events array up top.
     onRefresh(e, target) {
       setTimeout(this.binded.refresh, 500);
     }
@@ -88,6 +91,35 @@ So I decided to create a simple framework that only does that small bit.
   
   export {SearchView}
 ``` 
+
+### Query
+
+Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
+what it includes. 
+
+```js
+  const {Query} = require('deekay');
+  
+  const el = new Query('#some-id');
+  el.addClass('myclass');
+  el.text = 'Some new text';
+```
+
+### Router
+
+Router listens to browser location changes and fires when a known route is matched. If there is no match, a
+'router:nomatch' event will be fired. All View instances automatically have the router set as a member, 
+so can be accessed with view.router.
+
+```js
+  const {Router} = require('deekay');
+  
+  // create a new router. It is a singleton and only one router can be created in an application.
+  const router = new Router();
+  
+  // call this after all views are created to trigger the initial route. 
+  router.execute();
+```
 
 ## Build from source
 
