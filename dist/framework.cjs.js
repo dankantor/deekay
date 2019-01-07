@@ -316,7 +316,7 @@ var Query = function () {
         dataset = {};
         keys.forEach(function (key) {
           var value = _this2.firstNode.dataset[key];
-          dataset[key] = parseInt(value) ? parseInt(value) : value;
+          dataset[key] = !isNaN(value) ? parseInt(value) : value;
         });
         return dataset;
       }
