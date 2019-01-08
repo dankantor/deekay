@@ -11,8 +11,8 @@ export default [
 		format: 'umd',
 		moduleName: 'deekay',
 		plugins: [
-			resolve(), // so Rollup can find `ms`
-			commonjs(), // so Rollup can convert `ms` to an ES module
+			resolve(),
+			commonjs(),
 			babel({
 				exclude: ['node_modules/**'],
 				runtimeHelpers: true
@@ -32,6 +32,8 @@ export default [
 			{ dest: pkg.module, format: 'es' }
 		],
 		plugins: [
+  		resolve(),
+  		commonjs(),
 			babel({
 				exclude: ['node_modules/**'],
 				runtimeHelpers: true

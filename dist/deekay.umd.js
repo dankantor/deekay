@@ -1,3 +1,9 @@
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.deekay = {})));
+}(this, (function (exports) { 'use strict';
+
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
@@ -3709,4 +3715,12 @@ var View = function () {
 * @property {number} status -  The http response code
 */
 
-export { View, Router, DocumentListener, EventEmitter, Query };
+exports.View = View;
+exports.Router = Router;
+exports.DocumentListener = DocumentListener;
+exports.EventEmitter = EventEmitter;
+exports.Query = Query;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

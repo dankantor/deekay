@@ -13,7 +13,13 @@ So I decided to create a simple framework that only does that small bit.
   npm install deekay
 ```
 
+The easiest way to get started is to jump into the [Example App](example/index.html). 
+
+To run it, you'll need a webserver. I recommend https://www.npmjs.com/package/http-server. After installing
+it run `http-server` and open a browser to http://localhost:8080/example/. 
+
 ## Usage
+
 
 ### View
 
