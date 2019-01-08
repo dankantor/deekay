@@ -338,6 +338,12 @@ var Query = function () {
 }();
 
 var DocumentListener = function () {
+
+  /**
+   * Create a DocumentListener. Only one DocumentListener instance will be created in 
+   * an application (singleton)
+   * @returns DocumentListener
+   */
   function DocumentListener() {
     _classCallCheck(this, DocumentListener);
 

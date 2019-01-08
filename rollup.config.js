@@ -9,7 +9,7 @@ export default [
 		entry: 'lib/index.js',
 		dest: pkg.browser,
 		format: 'umd',
-		moduleName: 'framework',
+		moduleName: 'deekay',
 		plugins: [
 			resolve(), // so Rollup can find `ms`
 			commonjs(), // so Rollup can convert `ms` to an ES module
