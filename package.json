@@ -1,5 +1,5 @@
 {
-  "name": "Deekay",
+  "name": "deekay",
   "version": "1.0.0",
   "description": "A simple vanilla JS front-end framework with no dependencies.",
   "main": "dist/deekay.cjs.js",
