@@ -66,119 +66,275 @@ var EventEmitter = function () {
   return EventEmitter;
 }();
 
-var Router = function () {
-  function Router() {
-    _classCallCheck(this, Router);
+var Query = function () {
+  function Query(selector) {
+    _classCallCheck(this, Query);
 
-    if (!Router.instance) {
-      Router.instance = this;
-      this.pathname = null;
-      this.eventEmitter = new EventEmitter();
-      this.listeners = {};
-      window.addEventListener('popstate', this.onPopstate.bind(this));
-      document.addEventListener('click', this.onClick.bind(this));
-    }
-    return Router.instance;
+    this.selector = selector;
+    return this;
   }
 
-  _createClass(Router, [{
-    key: 'add',
-    value: function add(params) {
-      this.listeners[params.pathname] = {
-        'name': params.name,
-        'listener': params.listener
-      };
-    }
-  }, {
-    key: 'onPopstate',
-    value: function onPopstate(e) {
-      this.execute();
-    }
-  }, {
-    key: 'onClick',
-    value: function onClick(e) {
-      if (e.target.tagName === 'A') {
-        return this.executeAnchorClick(e);
-      }
-    }
-  }, {
-    key: 'executeAnchorClick',
-    value: function executeAnchorClick(e) {
-      e.preventDefault();
-      var href = e.target.getAttribute('href');
-      var target = e.target.getAttribute('target');
-      if (target !== '_blank' && target !== '_self') {
-        this.navigate({
-          'href': href
-        });
-        return false;
-      }
-      if (target === '_self') {
-        location.href = href;
-      }
-    }
-  }, {
-    key: 'navigate',
-    value: function navigate(params) {
-      if (params.href !== this.pathname) {
-        if (params.replace && params.replace === true) {
-          history.replaceState(null, null, params.href);
-          this.execute();
-        } else {
-          history.pushState(null, null, params.href);
-          this.execute();
-        }
-      }
-    }
-  }, {
-    key: 'execute',
-    value: function execute() {
+  _createClass(Query, [{
+    key: '_clearCachedNodeList',
+    value: function _clearCachedNodeList() {
       var _this = this;
 
-      if (location.pathname !== this.pathname) {
-        var keys = Object.keys(this.listeners);
-        keys.forEach(function (key) {
-          var matches = _this.match(key, location.pathname);
-          if (matches) {
-            var route = _this.listeners[key];
-            route.listener.apply(null, [matches]);
-            _this.eventEmitter.trigger('router:execute', {
-              'pathname': location.pathname,
-              'name': route.name,
-              'matches': matches
-            });
-          }
-        });
-      }
-      this.pathname = location.pathname;
+      setTimeout(function () {
+        _this.cachedNodeList = undefined;
+      }, 20);
     }
   }, {
-    key: 'split',
-    value: function split(path) {
-      return path.split('/').slice(1);
+    key: 'addClass',
+    value: function addClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.add(className);
+      });
+      return this;
     }
   }, {
-    key: 'match',
-    value: function match(template, path) {
-      var templateParts = this.split(template);
-      var pathParts = this.split(path);
-      if (templateParts.length !== pathParts.length) {
-        return undefined;
+    key: 'removeClass',
+    value: function removeClass(className) {
+      this.nodeList.forEach(function (node) {
+        node.classList.remove(className);
+      });
+      return this;
+    }
+  }, {
+    key: 'hasClass',
+    value: function hasClass(className) {
+      var _hasClass = false;
+      this.nodeList.forEach(function (node) {
+        if (node.classList.contains(className) === true) {
+          _hasClass = true;
+        }
+      });
+      return _hasClass;
+    }
+  }, {
+    key: 'toggleClass',
+    value: function toggleClass(className) {
+      this.nodeList.forEach(function (node) {
+        if (node.classList.contains(className) === true) {
+          node.classList.remove(className);
+        } else {
+          node.classList.add(className);
+        }
+      });
+      return this;
+    }
+  }, {
+    key: 'stringToElement',
+    value: function stringToElement(content) {
+      var template = document.createElement('template');
+      content = content.trim();
+      template.innerHTML = content;
+      return template.content;
+    }
+  }, {
+    key: 'prepend',
+    value: function prepend(content) {
+      var html = this.stringToElement(content);
+      this.nodeList.forEach(function (node) {
+        node.prepend(html);
+      });
+      return this;
+    }
+  }, {
+    key: 'append',
+    value: function append(content) {
+      var html = this.stringToElement(content);
+      this.nodeList.forEach(function (node) {
+        node.append(html);
+      });
+      return this;
+    }
+  }, {
+    key: 'empty',
+    value: function empty() {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = '';
+      });
+      return this;
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.nodeList.forEach(function (node) {
+        node.parentNode.removeChild(node);
+      });
+      return this;
+    }
+  }, {
+    key: 'getAttr',
+    value: function getAttr(name) {
+      if (this.firstNode) {
+        return this.firstNode.getAttribute(name);
       }
-      var matches = {};
-      for (var i = 0; i < templateParts.length; i++) {
-        if (templateParts[i].length > 1 && templateParts[i][0] === ':') {
-          var key = templateParts[i].substring(1);
-          matches[key] = pathParts[i];
-        } else if (templateParts[i] !== pathParts[i]) {
-          return undefined;
+      return undefined;
+    }
+  }, {
+    key: 'setAttr',
+    value: function setAttr(name, value) {
+      this.nodeList.forEach(function (node) {
+        node.setAttribute(name, value);
+      });
+      return this;
+    }
+  }, {
+    key: 'removeAttr',
+    value: function removeAttr(name) {
+      this.nodeList.forEach(function (node) {
+        node.removeAttribute(name);
+      });
+      return this;
+    }
+  }, {
+    key: 'on',
+    value: function on(type, listener) {
+      this.nodeList.forEach(function (node) {
+        node.addEventListener(type, listener, false);
+      });
+      return this;
+    }
+  }, {
+    key: 'off',
+    value: function off(type, listener) {
+      this.nodeList.forEach(function (node) {
+        node.removeEventListener(type, listener);
+      });
+      return this;
+    }
+  }, {
+    key: 'css',
+    value: function css(name, value) {
+      this.nodeList.forEach(function (node) {
+        node.style[name] = value;
+      });
+      return this;
+    }
+  }, {
+    key: 'nodeList',
+    get: function get() {
+      if (this.cachedNodeList) {
+        return this.cachedNodeList;
+      }
+      if (typeof this.selector === 'string') {
+        this.cachedNodeList = document.querySelectorAll(this.selector);
+        this._clearCachedNodeList();
+        return this.cachedNodeList;
+      } else if (_typeof(this.selector) === 'object') {
+        if (this.selector instanceof NodeList) {
+          this.cachedNodeList = this.selector;
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
+        } else if (this.selector instanceof Node) {
+          this.cachedNodeList = [this.selector];
+          this._clearCachedNodeList();
+          return this.cachedNodeList;
         }
       }
-      return matches;
+      return undefined;
+    }
+  }, {
+    key: 'firstNode',
+    get: function get() {
+      if (this.nodeList) {
+        if (this.nodeList instanceof NodeList) {
+          return this.nodeList.item(0);
+        } else if (this.nodeList instanceof Node) {
+          return this.nodeList;
+        } else if (this.nodeList instanceof Array) {
+          return this.nodeList[0];
+        }
+      }
+      return undefined;
+    }
+  }, {
+    key: 'length',
+    get: function get() {
+      return this.nodeList.length;
+    }
+  }, {
+    key: 'html',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.innerHTML;
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerHTML = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'text',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.innerText;
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.innerText = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'val',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.value.trim();
+      }
+      return undefined;
+    },
+    set: function set(content) {
+      this.nodeList.forEach(function (node) {
+        node.value = content;
+      });
+      return this;
+    }
+  }, {
+    key: 'data',
+    get: function get() {
+      var _this2 = this;
+
+      if (this.firstNode) {
+        var dataset = null;
+        var keys = Object.keys(this.firstNode.dataset);
+        if (keys.length === 0) {
+          return null;
+        }
+        dataset = {};
+        keys.forEach(function (key) {
+          var value = _this2.firstNode.dataset[key];
+          dataset[key] = !isNaN(value) ? parseInt(value) : value;
+        });
+        return dataset;
+      }
+      return undefined;
+    }
+  }, {
+    key: 'checked',
+    get: function get() {
+      if (this.firstNode) {
+        return this.firstNode.checked;
+      }
+      return undefined;
+    },
+    set: function set(bool) {
+      this.nodeList.forEach(function (node) {
+        try {
+          node.checked = bool;
+        } catch (err) {}
+      });
+      return this;
     }
   }]);
 
-  return Router;
+  return Query;
 }();
 
 var DocumentListener = function () {
@@ -225,16 +381,13 @@ var DocumentListener = function () {
     }
   }, {
     key: '_trigger',
-    value: function _trigger(e, event, queryItem, node, listener) {
-      if (queryItem === node) {
-        // todo: this doesnt work. Cant set target on readOnly event
-        // e.currentTarget = e.target;
-        // e.target = queryItem;
-        listener.apply(event.context, [e]);
+    value: function _trigger(e, event, target, node, listener) {
+      if (target === node) {
+        listener.apply(event.context, [e, new Query(target)]);
         return true;
       }
       if (node.parentNode) {
-        return this._trigger(e, event, queryItem, node.parentNode, listener);
+        return this._trigger(e, event, target, node.parentNode, listener);
       }
       return false;
     }
@@ -243,186 +396,123 @@ var DocumentListener = function () {
   return DocumentListener;
 }();
 
-var Query = function () {
-  function Query(selector) {
-    _classCallCheck(this, Query);
+var Router = function () {
+  function Router() {
+    _classCallCheck(this, Router);
 
-    this.selector = selector;
-    this.cachedNodeList = null;
-    this.ran = Math.random();
-    return this;
+    if (!Router.instance) {
+      Router.instance = this;
+      this.pathname = null;
+      this.eventEmitter = new EventEmitter();
+      this.listeners = {};
+      window.addEventListener('popstate', this.onPopstate.bind(this));
+      this.documentListener = new DocumentListener();
+      this.documentListener.on('click', 'a', this.onClick.bind(this), this);
+    }
+    return Router.instance;
   }
 
-  _createClass(Query, [{
-    key: '_clearCachedNodeList',
-    value: function _clearCachedNodeList() {
+  _createClass(Router, [{
+    key: 'add',
+    value: function add(params) {
+      this.listeners[params.pathname] = {
+        'name': params.name,
+        'listener': params.listener
+      };
+    }
+  }, {
+    key: 'onPopstate',
+    value: function onPopstate(e) {
+      this.execute();
+    }
+  }, {
+    key: 'onClick',
+    value: function onClick(e, target) {
+      e.preventDefault();
+      return this.executeAnchorClick(target);
+    }
+  }, {
+    key: 'executeAnchorClick',
+    value: function executeAnchorClick(target) {
+      var href = target.getAttr('href');
+      var targetAttr = target.getAttr('target');
+      if (targetAttr !== '_blank' && targetAttr !== '_self') {
+        if (href !== this.pathname) {
+          this.navigate({
+            'href': href
+          });
+        }
+        return false;
+      }
+      if (targetAttr === '_self') {
+        location.href = href;
+      }
+    }
+  }, {
+    key: 'navigate',
+    value: function navigate(params) {
+      if (params.replace && params.replace === true) {
+        history.replaceState(null, null, params.href);
+        this.execute();
+      } else {
+        history.pushState(null, null, params.href);
+        this.execute();
+      }
+    }
+  }, {
+    key: 'execute',
+    value: function execute() {
       var _this = this;
 
-      setTimeout(function () {
-        _this.cachedNodeList = null;
-      }, 200);
-    }
-  }, {
-    key: 'addClass',
-    value: function addClass(className) {
-      this.nodeList.forEach(function (node) {
-        node.classList.add(className);
-      });
-      return this;
-    }
-  }, {
-    key: 'removeClass',
-    value: function removeClass(className) {
-      this.nodeList.forEach(function (node) {
-        node.classList.remove(className);
-      });
-      return this;
-    }
-  }, {
-    key: 'hasClass',
-    value: function hasClass(className) {
-      var _hasClass = false;
-      this.nodeList.forEach(function (node) {
-        if (node.classList.contains(className) === true) {
-          _hasClass = true;
+      var keys = Object.keys(this.listeners);
+      var foundMatch = false;
+      keys.forEach(function (key) {
+        var matches = _this.match(key, location.pathname);
+        if (matches) {
+          var route = _this.listeners[key];
+          route.listener.apply(null, [matches]);
+          _this.eventEmitter.trigger('router:execute', {
+            'pathname': location.pathname,
+            'name': route.name,
+            'matches': matches
+          });
+          foundMatch = true;
         }
       });
-      return _hasClass;
-    }
-  }, {
-    key: 'toggleClass',
-    value: function toggleClass(className) {
-      // todo: what boolean do you return? ie. first node, all (hash), one (like hasClass)
-    }
-  }, {
-    key: 'prepend',
-    value: function prepend(content) {
-      this.nodeList.forEach(function (node) {
-        var html = node.innerHTML;
-        node.innerHTML = content + html;
-      });
-      return this;
-    }
-  }, {
-    key: 'append',
-    value: function append(content) {
-      this.nodeList.forEach(function (node) {
-        var html = node.innerHTML;
-        node.innerHTML = html + content;
-      });
-      return this;
-    }
-  }, {
-    key: 'empty',
-    value: function empty() {
-      this.nodeList.forEach(function (node) {
-        node.innerHTML = '';
-      });
-      return this;
-    }
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.nodeList.forEach(function (node) {
-        node.parentNode.removeChild(node);
-      });
-      return this;
-    }
-  }, {
-    key: 'nodeList',
-    get: function get() {
-      if (this.cachedNodeList !== null) {
-        return this.cachedNodeList;
-      }
-      if (typeof this.selector === 'string') {
-        this.cachedNodeList = document.querySelectorAll(this.selector);
-        this._clearCachedNodeList();
-        return this.cachedNodeList;
-      } else if (_typeof(this.selector) === 'object') {
-        if (this.selector.length) {
-          this.cachedNodeList = this.selector;
-          this._clearCachedNodeList();
-          return this.cachedNodeList;
-        } else {
-          this.cachedNodeList = [this.selector];
-          this._clearCachedNodeList();
-          return this.cachedNodeList;
-        }
-      }
-      return null;
-    }
-  }, {
-    key: 'length',
-    get: function get() {
-      return this.nodeList.length;
-    }
-  }, {
-    key: 'html',
-    get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].innerHTML;
-      } else {
-        return '';
-      }
-    },
-    set: function set(content) {
-      this.nodeList.forEach(function (node) {
-        node.innerHTML = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'text',
-    get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].innerText;
-      } else {
-        return '';
-      }
-    },
-    set: function set(content) {
-      this.nodeList.forEach(function (node) {
-        node.innerText = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'val',
-    get: function get() {
-      if (this.nodeList && this.nodeList.length > 0) {
-        return this.nodeList[0].value;
-      } else {
-        return '';
-      }
-    },
-    set: function set(content) {
-      this.nodeList.forEach(function (node) {
-        node.value = content;
-      });
-      return this;
-    }
-  }, {
-    key: 'data',
-    get: function get() {
-      if (this.nodeList !== null) {
-        var target = this.nodeList[0];
-        var dataset = null;
-        var keys = Object.keys(target.dataset);
-        if (keys.length === 0) {
-          return null;
-        }
-        dataset = {};
-        keys.forEach(function (key) {
-          var value = target.dataset[key];
-          dataset[key] = parseInt(value) ? parseInt(value) : value;
+      if (foundMatch === false) {
+        this.eventEmitter.trigger('router:nomatch', {
+          'pathname': location.pathname
         });
-        return dataset;
       }
-      return null;
+      this.pathname = location.pathname;
+    }
+  }, {
+    key: 'split',
+    value: function split(path) {
+      return path.split('/').slice(1);
+    }
+  }, {
+    key: 'match',
+    value: function match(template, path) {
+      var templateParts = this.split(template);
+      var pathParts = this.split(path);
+      if (templateParts.length !== pathParts.length) {
+        return undefined;
+      }
+      var matches = {};
+      for (var i = 0; i < templateParts.length; i++) {
+        if (templateParts[i].length > 1 && templateParts[i][0] === ':') {
+          var key = templateParts[i].substring(1);
+          matches[key] = pathParts[i];
+        } else if (templateParts[i] !== pathParts[i]) {
+          return undefined;
+        }
+      }
+      return matches;
     }
   }]);
 
-  return Query;
+  return Router;
 }();
 
 var View = function () {
@@ -444,9 +534,10 @@ var View = function () {
     _classCallCheck(this, View);
 
     this.cParams = params;
-    this.boundFunctions = {};
+    this.binded = {};
     this.addEvents(params.events);
     this.addRoute(params.route);
+    this.addBinded(params.binded);
   }
 
   _createClass(View, [{
@@ -454,7 +545,7 @@ var View = function () {
     value: function getValue(key, list) {
       var value = null;
       var found = list.find(function (item) {
-        if (item[key]) {
+        if (item && item[key]) {
           return true;
         }
       });
@@ -519,6 +610,18 @@ var View = function () {
           'pathname': route.pathname,
           'name': route.name,
           'listener': listener
+        });
+      }
+    }
+  }, {
+    key: 'addBinded',
+    value: function addBinded(binded) {
+      var _this2 = this;
+
+      if (binded) {
+        binded.forEach(function (item) {
+          var listener = _this2[item].bind(_this2);
+          _this2.binded[item] = listener;
         });
       }
     }
@@ -593,22 +696,22 @@ var View = function () {
         context = this;
       }
       var boundFunction = listener.bind(context);
-      this.boundFunctions[listener] = boundFunction;
+      this.binded[listener] = boundFunction;
       this.eventEmitter.on(type, boundFunction);
     }
   }, {
     key: 'off',
-    value: function off(type, fn) {
-      if (this.boundFunctions[fn]) {
-        this.eventEmitter.off(type, this.boundFunctions[fn]);
+    value: function off(type, listener) {
+      if (this.binded[listener]) {
+        this.eventEmitter.off(type, this.binded[listener]);
       } else {
-        this.eventEmitter.off(type, fn);
+        this.eventEmitter.off(type, listener);
       }
     }
   }, {
     key: 'trigger',
-    value: function trigger(type, obj) {
-      this.eventEmitter.trigger(type, obj);
+    value: function trigger(type, data) {
+      this.eventEmitter.trigger(type, data);
     }
   }, {
     key: 'show',
