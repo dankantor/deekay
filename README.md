@@ -1,6 +1,6 @@
 # Deekay
 
-A simple vanilla JS framework with no dependencies. 
+A simple vanilla JS front-end framework with no dependencies. 
 
 ## Why create 'Yet Another JS Framework'?
 
