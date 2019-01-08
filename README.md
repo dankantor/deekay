@@ -18,7 +18,8 @@ So I decided to create a simple framework that only does that small bit.
 ### View
 
 View is a class that provides a small subset of the functionality provided by Backbone. 
-[Documentation](docs/View.html)
+
+[View Documentation](docs/View.html)
 
 ```js
   // create our variables up top
@@ -95,7 +96,9 @@ View is a class that provides a small subset of the functionality provided by Ba
 ### Query
 
 Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
-what it includes. [Documentation](docs/Query.html)
+what it includes. 
+
+[View Documentation](docs/Query.html)
 
 ```js
   const {Query} = require('deekay');
@@ -114,7 +117,7 @@ Router will listen for all clicks on anchor elements. When anchors are clicked t
 navigate to the new url, but will instead change the History state. If the anchor has `target=_self` the 
 browser will perform a full navigation. If the anchor has `target=_blank'` it will open a new tab/window. 
 
-[Documentation](docs/Router.html)
+[View Documentation](docs/Router.html)
 
 ```js
   const {Router} = require('deekay');
@@ -159,7 +162,7 @@ All View instances automatically have the router set as a member, and will usual
 DocumentListener is rarely used directly, but rather through a View. Each view instance will get a member 
 documentListener. Each application will only have one DocumentListener created (singleton). 
 
-[Documentation](docs/DocumentListener.html)
+[View Documentation](docs/DocumentListener.html)
 
 ```js
   const {View} = require('deekay');
@@ -208,7 +211,7 @@ EventEmitter is used as a global event bus for custom events.
 EventEmitter is rarely used directly, but rather through a View. Each view instance will get a member 
 eventEmitter. Each application will only have one EventEmitter created (singleton).
 
-[Documentation](docs/EventEmitter.html)
+[View Documentation](docs/EventEmitter.html)
 
 ```js
   const {View} = require('deekay');
