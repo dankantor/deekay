@@ -13,12 +13,19 @@ So I decided to create a simple framework that only does that small bit.
   npm install deekay
 ```
 
+The easiest way to get started is to jump into the [Example App](example/index.html). 
+
+To run it, you'll need a webserver. I recommend https://www.npmjs.com/package/http-server. After installing
+it run `http-server` and open a browser to http://localhost:8080/example/. 
+
 ## Usage
+
 
 ### View
 
 View is a class that provides a small subset of the functionality provided by Backbone. 
-[Documentation](docs/View.html)
+
+[View Documentation](docs/View.html)
 
 ```js
   // create our variables up top
@@ -95,7 +102,9 @@ View is a class that provides a small subset of the functionality provided by Ba
 ### Query
 
 Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
-what it includes. [Documentation](docs/Query.html)
+what it includes. 
+
+[View Documentation](docs/Query.html)
 
 ```js
   const {Query} = require('deekay');
@@ -114,7 +123,7 @@ Router will listen for all clicks on anchor elements. When anchors are clicked t
 navigate to the new url, but will instead change the History state. If the anchor has `target=_self` the 
 browser will perform a full navigation. If the anchor has `target=_blank'` it will open a new tab/window. 
 
-[Documentation](docs/Router.html)
+[View Documentation](docs/Router.html)
 
 ```js
   const {Router} = require('deekay');
@@ -136,7 +145,6 @@ All View instances automatically have the router set as a member, and will usual
     {'type': 'click', 'selector': '#home', 'listener': 'onClick'}
   ];
   
-  // extend the View class
   class NotFoundView extends View {
     
     constructor() {
@@ -157,15 +165,131 @@ All View instances automatically have the router set as a member, and will usual
 
 ### DocumentListener
 
-[Documentation](docs/DocumentListener.html)
+DocumentListener is rarely used directly, but rather through a View. Each view instance will get a member 
+documentListener. Each application will only have one DocumentListener created (singleton). 
+
+[View Documentation](docs/DocumentListener.html)
+
+```js
+  const {View} = require('deekay');
+  
+  // events added here with a selector property will be passed to the documentListener.on method
+  const events = [
+    {'type': 'click', 'selector': '#home', 'listener': 'onClick'}
+  ];
+  
+  class NotFoundView extends View {
+    
+    constructor() {
+      super({events});
+    }
+    
+    // #home was clicked. We can add a class to it.
+    onClick(e, target) {
+      target.addClass('active');
+    } 
+    
+    // We can add listeners this way as well
+    addListener() {
+      this.documentListener.on('click', '#some-id', (e, target) => {
+        target.addClass('active');
+      }, this);
+    } 
+     
+  }
+```
+
+If you do want to use DocumentListener outside of a View.
+  
+```js
+  const {DocumentListener} = require('deekay');
+  
+  let documentListener = new DocumentListener();
+  documentListener.on('click', '#some-id', (e, target) => {
+    target.addClass('active');
+  }, this);
+```
 
 ### EventEmitter
 
-[Documentation](docs/EventEmitter.html)
+EventEmitter is used as a global event bus for custom events. 
+
+EventEmitter is rarely used directly, but rather through a View. Each view instance will get a member 
+eventEmitter. Each application will only have one EventEmitter created (singleton).
+
+[View Documentation](docs/EventEmitter.html)
+
+```js
+  const {View} = require('deekay');
+  
+  // events added here without a selector property are considered custom events and will be passed 
+  // to the eventEmitter.on method
+  const events = [
+    {'type': 'search:refresh', 'listener': 'onRefresh'}
+  ];
+  
+  class SearchView extends View {
+    
+    constructor() {
+      super({events});
+    }
+    
+    // search:refresh was triggered 
+    onRefresh(e, data) {
+      console.log(data);
+    } 
+    
+    // We can add listeners for custom events this way too
+    addListener() {
+      this.on('search:refresh', this.onRefresh);
+    } 
+     
+  }
+```
+
+Stop listening for a custom event.
+
+```js
+  const {View} = require('deekay');
+  
+  class SearchView extends View { 
+    
+    removeListener() {
+      this.off('search:refresh', this.onRefresh);
+    } 
+     
+  }
+```
+
+
+Trigger a custom event.
+
+```js
+  const {View} = require('deekay');
+  
+  class SearchView extends View { 
+    
+    triggerEvent() {
+      this.trigger('search:refresh', data);
+    } 
+     
+  }
+```
+
+If you do want to use EventEmitter outside of a View.
+  
+```js
+  const {EventEmitter} = require('deekay');
+  
+  let eventEmitter = new EventEmitter();
+  eventEmitter.on('search:refresh', (e, data) => {
+    console.log(data);
+  });
+```
 
 ## Build from source
 
-Deekay is written in ES6. To compile it for use in browsers, we use Rollup. The command to compile is - 
+Deekay is written in ES6. To compile it for use in browsers, use Rollup. The command to compile is - 
 `npm run build`
 
 To create the latest docs, you can do `npm run jsdoc`

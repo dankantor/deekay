@@ -1,9 +1,10 @@
 {
-  "name": "Deekay",
+  "name": "deekay",
   "version": "1.0.0",
   "description": "A simple vanilla JS front-end framework with no dependencies.",
   "main": "dist/deekay.cjs.js",
   "module": "dist/deekay.esm.js",
+  "browser": "dist/deekay.umd.js",
   "repository": "https://github.com/dankantor/deekay",
   "author": "Dan Kantor",
   "private": true,
