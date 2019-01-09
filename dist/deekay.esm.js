@@ -2098,22 +2098,22 @@ exports.default = function () {
 
 var _createClass = unwrapExports(createClass);
 
-var EventEmitter = function () {
+var EventBus = function () {
 
   /**
-   * @summary Create an EventEmitter. Only one EventEmitter instance will be created in 
+   * @summary Create an EventBus. Only one EventBus instance will be created in 
    * an application.
-   * @description EventEmitter is used as a global event bus for custom events.
-   * @returns {EventEmitter} singleton
+   * @description EventBus is used as a global event bus for custom events.
+   * @returns {EventBus} singleton
    */
-  function EventEmitter() {
-    _classCallCheck(this, EventEmitter);
+  function EventBus() {
+    _classCallCheck(this, EventBus);
 
-    if (!EventEmitter.instance) {
-      EventEmitter.instance = this;
+    if (!EventBus.instance) {
+      EventBus.instance = this;
       this.listeners = {};
     }
-    return EventEmitter.instance;
+    return EventBus.instance;
   }
 
   /**
@@ -2124,7 +2124,7 @@ var EventEmitter = function () {
    */
 
 
-  _createClass(EventEmitter, [{
+  _createClass(EventBus, [{
     key: 'on',
     value: function on(type, listener) {
       if (!this.listeners[type]) {
@@ -2189,7 +2189,7 @@ var EventEmitter = function () {
     }
   }]);
 
-  return EventEmitter;
+  return EventBus;
 }();
 
 var f$2 = _wks;
@@ -3171,7 +3171,7 @@ var Router = function () {
     if (!Router.instance) {
       Router.instance = this;
       this.pathname = null;
-      this.eventEmitter = new EventEmitter();
+      this.eventBus = new EventBus();
       this.listeners = {};
       window.addEventListener('popstate', this.onPopstate.bind(this));
       this.documentListener = new DocumentListener();
@@ -3254,7 +3254,7 @@ var Router = function () {
         if (matches) {
           var route = _this.listeners[key];
           route.listener.apply(null, [matches]);
-          _this.eventEmitter.trigger('router:execute', {
+          _this.eventBus.trigger('router:execute', {
             'pathname': location.pathname,
             'name': route.name,
             'matches': matches
@@ -3263,7 +3263,7 @@ var Router = function () {
         }
       });
       if (foundMatch === false) {
-        this.eventEmitter.trigger('router:nomatch', {
+        this.eventBus.trigger('router:nomatch', {
           'pathname': location.pathname
         });
       }
@@ -3331,7 +3331,7 @@ var View = function () {
    * @param {Object} params
    * @param {string} params.selector - Parent element of view. Also the default element when a selector 
    *  is not passed in to methods. Must be a valid CSS selector string.
-   * @param {string} params.template - A Handlebars template used for rendering.
+   * @param {function} params.template - A template function used for rendering.
    * @param {View~Event[]} params.events - Events will be passed to [addEvents]{@link View#addEvents}.
    * @param {Router~Route} params.route - Route will be passed to [addRoute]{@link View#addRoute}.
    * @param {string} params.uri - The default uri to use when [fetch]{@link View.fetch} is called.
@@ -3348,7 +3348,7 @@ var View = function () {
   }
 
   /**
-   * Get [EventEmitter]{@link EventEmitter} singleton.
+   * Get [EventBus]{@link EventBus} singleton.
    * @member
    */
 
@@ -3370,18 +3370,18 @@ var View = function () {
 
     /**
      * @method
-     * @description Takes the passed in data object, runs it through the Handlebars template and inserts it 
+     * @description Takes the passed in data object, runs it through the template function and inserts it 
      * into the selector element. Passing params is optional and will default to the params passed to the 
      * view instance constructor. 
      * @param {Object=} params
-     * @param {string} params.selector - The selector that the template will be inserted in to. If none is
-     *  passed in, will default to the selector passed to the Class constructor.
-     * @param {string} params.template - A Handlebars template. If none is passed in, will default to the
+     * @param {string} params.selector - The selector that the resulting HTML will be inserted in to.
+     *  If none is passed in, will default to the selector passed to the Class constructor.
+     * @param {function} params.template - A template function. If none is passed in, will default to the
      *  template passed to the Class constructor.
-     * @param {Object} params.data - An object that will be passed to the Handlebars template.
-     * @param {boolean} params.append [false] - If true, will append the template to the selector element as 
+     * @param {Object} params.data - An object that will be passed to the template function.
+     * @param {boolean} params.append [false] - If true, will append the HTML to the selector element as 
      *  opposed to replacing the entire innerHTML.
-     * @param {boolean} params.prepend [false] - If true, will prepend the template to the selector element as 
+     * @param {boolean} params.prepend [false] - If true, will prepend the HTML to the selector element as 
      *  opposed to replacing the entire innerHTML. 
      */
 
@@ -3557,7 +3557,7 @@ var View = function () {
 
     /**
      * @method
-     * @description convenience method passed to [EventEmitter.on]{@link EventEmitter#on}. 
+     * @description convenience method passed to [EventBus.on]{@link EventBus#on}. 
      * @param {string} type - the name of the event to listen on.
      * @param {function} listener - The callback function for when this event is triggered.
      * @param {object} [context=this] - The value of 'this' provided to the listener. 
@@ -3573,12 +3573,12 @@ var View = function () {
       }
       var boundFunction = listener.bind(context);
       this.binded[listener] = boundFunction;
-      this.eventEmitter.on(type, boundFunction);
+      this.eventBus.on(type, boundFunction);
     }
 
     /**
      * @method
-     * @description convenience method passed to [EventEmitter.off]{@link EventEmitter#off}. 
+     * @description convenience method passed to [EventBus.off]{@link EventBus#off}. 
      * @param {string} type - the name of the event to stop listening to.
      * @param {function} listener - The callback function for this event.
      */
@@ -3587,15 +3587,15 @@ var View = function () {
     key: 'off',
     value: function off(type, listener) {
       if (this.binded[listener]) {
-        this.eventEmitter.off(type, this.binded[listener]);
+        this.eventBus.off(type, this.binded[listener]);
       } else {
-        this.eventEmitter.off(type, listener);
+        this.eventBus.off(type, listener);
       }
     }
 
     /**
      * @method
-     * @description convenience method passed to [EventEmitter.trigger]{@link EventEmitter#trigger}. 
+     * @description convenience method passed to [EventBus.trigger]{@link EventBus#trigger}. 
      * @param {string} type - the name of the event to trigger.
      * @param {object} data - Arbitrary data to pass with the event.
      */
@@ -3603,7 +3603,7 @@ var View = function () {
   }, {
     key: 'trigger',
     value: function trigger(type, data) {
-      this.eventEmitter.trigger(type, data);
+      this.eventBus.trigger(type, data);
     }
   }, {
     key: 'show',
@@ -3638,12 +3638,12 @@ var View = function () {
       return this;
     }
   }, {
-    key: 'eventEmitter',
+    key: 'eventBus',
     get: function get() {
-      if (!this._eventEmitter) {
-        this._eventEmitter = new EventEmitter();
+      if (!this._eventBus) {
+        this._eventBus = new EventBus();
       }
-      return this._eventEmitter;
+      return this._eventBus;
     }
 
     /**
@@ -3709,4 +3709,4 @@ var View = function () {
 * @property {number} status -  The http response code
 */
 
-export { View, Router, DocumentListener, EventEmitter, Query };
+export { View, Router, DocumentListener, EventBus, Query };
