@@ -210,20 +210,20 @@ If you do want to use DocumentListener outside of a View.
   }, this);
 ```
 
-### EventEmitter
+### EventBus
 
-EventEmitter is used as a global event bus for custom events. 
+EventBus is used as a global event bus for custom events. 
 
-EventEmitter is rarely used directly, but rather through a View. Each view instance will get a member 
-eventEmitter. Each application will only have one EventEmitter created (singleton).
+EventBus is rarely used directly, but rather through a View. Each view instance will get a member 
+EventBus. Each application will only have one EventBus created (singleton).
 
-[View Documentation](docs/EventEmitter.html)
+[View Documentation](docs/EventBus.html)
 
 ```js
   const {View} = require('deekay');
   
   // events added here without a selector property are considered custom events and will be passed 
-  // to the eventEmitter.on method
+  // to the eventBus.on method
   const events = [
     {'type': 'search:refresh', 'listener': 'onRefresh'}
   ];
@@ -276,13 +276,13 @@ Trigger a custom event.
   }
 ```
 
-If you do want to use EventEmitter outside of a View.
+If you do want to use EventBus outside of a View.
   
 ```js
-  const {EventEmitter} = require('deekay');
+  const {EventBus} = require('deekay');
   
-  let eventEmitter = new EventEmitter();
-  eventEmitter.on('search:refresh', (e, data) => {
+  let eventBus = new EventBus();
+  eventBus.on('search:refresh', (e, data) => {
     console.log(data);
   });
 ```
