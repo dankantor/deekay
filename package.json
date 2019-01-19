@@ -7,7 +7,6 @@
   "browser": "dist/deekay.umd.js",
   "repository": "https://github.com/dankantor/deekay",
   "author": "Dan Kantor",
-  "private": true,
   "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.26.3",
