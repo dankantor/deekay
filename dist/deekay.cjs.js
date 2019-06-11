@@ -3206,15 +3206,15 @@ var Router = function () {
   }, {
     key: 'onClick',
     value: function onClick(e, target) {
-      e.preventDefault();
-      return this.executeAnchorClick(target);
+      return this.executeAnchorClick(e, target);
     }
   }, {
     key: 'executeAnchorClick',
-    value: function executeAnchorClick(target) {
+    value: function executeAnchorClick(e, target) {
       var href = target.getAttr('href');
       var targetAttr = target.getAttr('target');
       if (targetAttr !== '_blank' && targetAttr !== '_self') {
+        e.preventDefault();
         if (href !== this.pathname) {
           this.navigate({
             'href': href
@@ -3222,9 +3222,7 @@ var Router = function () {
         }
         return false;
       }
-      if (targetAttr === '_self') {
-        location.href = href;
-      }
+      return true;
     }
 
     /**
@@ -3525,33 +3523,53 @@ var View = function () {
                 response = _context.sent;
 
                 result.status = response.status;
-                _context.next = 9;
+                _context.prev = 7;
+                _context.next = 10;
                 return response.json();
 
-              case 9:
+              case 10:
                 result.data = _context.sent;
-
-                if (result.status <= 400) {
-                  result.error = false;
-                }
-                _context.next = 16;
+                _context.next = 23;
                 break;
 
               case 13:
                 _context.prev = 13;
-                _context.t0 = _context['catch'](2);
+                _context.t0 = _context['catch'](7);
+                _context.prev = 15;
+                _context.next = 18;
+                return response.text();
 
-                result.data = _context.t0;
+              case 18:
+                result.data = _context.sent;
+                _context.next = 23;
+                break;
 
-              case 16:
+              case 21:
+                _context.prev = 21;
+                _context.t1 = _context['catch'](15);
+
+              case 23:
+                if (result.status <= 400) {
+                  result.error = false;
+                }
+                _context.next = 29;
+                break;
+
+              case 26:
+                _context.prev = 26;
+                _context.t2 = _context['catch'](2);
+
+                result.data = _context.t2;
+
+              case 29:
                 return _context.abrupt('return', result);
 
-              case 17:
+              case 30:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[2, 13]]);
+        }, _callee, this, [[2, 26], [7, 13], [15, 21]]);
       }));
 
       return function (_x2) {
