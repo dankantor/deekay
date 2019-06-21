@@ -3160,12 +3160,15 @@ var Router = function () {
   /**
    * @summary Create a Router. Only one Router instance will be created in 
    * an application.
+   * @param {Object} params
+   * @param {string} params.pushState - if set to false, router will not listen for popstate event and
+   *  will not override anchor clicks. Default is true.
    * @description Listens to browser location changes and fires when a known route is matched.
    * @returns {Router} singleton
    * @fires Router#router:nomatch
    * @fires Router#router:execute
    */
-  function Router() {
+  function Router(params) {
     _classCallCheck(this, Router);
 
     if (!Router.instance) {
@@ -3173,9 +3176,17 @@ var Router = function () {
       this.pathname = null;
       this.eventBus = new EventBus();
       this.listeners = {};
-      window.addEventListener('popstate', this.onPopstate.bind(this));
-      this.documentListener = new DocumentListener();
-      this.documentListener.on('click', 'a', this.onClick.bind(this), this);
+
+      if (params !== undefined) {
+        if (params.pushState !== undefined) {
+          this.pushState = params.pushState;
+        }
+      }
+      if (this.pushState === true) {
+        window.addEventListener('popstate', this.onPopstate.bind(this));
+        this.documentListener = new DocumentListener();
+        this.documentListener.on('click', 'a', this.onClick.bind(this), this);
+      }
     }
     return Router.instance;
   }
@@ -3290,6 +3301,18 @@ var Router = function () {
         }
       }
       return matches;
+    }
+  }, {
+    key: 'pushState',
+    get: function get() {
+      if (this._pushState === undefined) {
+        return true;
+      } else {
+        return this._pushState;
+      }
+    },
+    set: function set(bool) {
+      this._pushState = bool;
     }
   }]);
 
