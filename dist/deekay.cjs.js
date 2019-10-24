@@ -740,6 +740,15 @@ var runtime = createCommonjsModule(function (module) {
 );
 });
 
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
 var g = (function() { return this })() || Function("return this")();
 
 // Use `getOwnPropertyNames` because not all browsers support calling
@@ -782,6 +791,8 @@ var _defined = function (it) {
   return it;
 };
 
+// true  -> String#at
+// false -> String#codePointAt
 var _stringAt = function (TO_STRING) {
   return function (that, pos) {
     var s = String(_defined(that));
@@ -816,6 +827,8 @@ var _aFunction = function (it) {
   if (typeof it != 'function') throw TypeError(it + ' is not a function!');
   return it;
 };
+
+// optional / simple context binding
 
 var _ctx = function (fn, that, length) {
   _aFunction(fn);
@@ -853,6 +866,7 @@ var _fails = function (exec) {
   }
 };
 
+// Thank's IE8 for his funny defineProperty
 var _descriptors = !_fails(function () {
   return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
 });
@@ -868,6 +882,10 @@ var _ie8DomDefine = !_descriptors && !_fails(function () {
   return Object.defineProperty(_domCreate('div'), 'a', { get: function () { return 7; } }).a != 7;
 });
 
+// 7.1.1 ToPrimitive(input [, PreferredType])
+
+// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+// and the second argument - flag - preferred type is a string
 var _toPrimitive = function (it, S) {
   if (!_isObject(it)) return it;
   var fn, val;
@@ -984,13 +1002,21 @@ var _cof = function (it) {
   return toString.call(it).slice(8, -1);
 };
 
+// fallback for non-array-like ES3 and non-enumerable old V8 strings
+
+// eslint-disable-next-line no-prototype-builtins
 var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
   return _cof(it) == 'String' ? it.split('') : Object(it);
 };
 
+// to indexed object, toObject with fallback for non-array-like ES3 strings
+
+
 var _toIobject = function (it) {
   return _iobject(_defined(it));
 };
+
+// 7.1.15 ToLength
 
 var min = Math.min;
 var _toLength = function (it) {
@@ -1003,6 +1029,11 @@ var _toAbsoluteIndex = function (index, length) {
   index = _toInteger(index);
   return index < 0 ? max(index + length, 0) : min$1(index, length);
 };
+
+// false -> Array#indexOf
+// true  -> Array#includes
+
+
 
 var _arrayIncludes = function (IS_INCLUDES) {
   return function ($this, el, fromIndex) {
@@ -1069,6 +1100,10 @@ var _enumBugKeys = (
   'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
 ).split(',');
 
+// 19.1.2.14 / 15.2.3.14 Object.keys(O)
+
+
+
 var _objectKeys = Object.keys || function keys(O) {
   return _objectKeysInternal(O, _enumBugKeys);
 };
@@ -1085,6 +1120,10 @@ var _objectDps = _descriptors ? Object.defineProperties : function definePropert
 
 var document$2 = _global.document;
 var _html = document$2 && document$2.documentElement;
+
+// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+
+
 
 var IE_PROTO = _sharedKey('IE_PROTO');
 var Empty = function () { /* empty */ };
@@ -1156,9 +1195,14 @@ var _iterCreate = function (Constructor, NAME, next) {
   _setToStringTag(Constructor, NAME + ' Iterator');
 };
 
+// 7.1.13 ToObject(argument)
+
 var _toObject = function (it) {
   return Object(_defined(it));
 };
+
+// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+
 
 var IE_PROTO$2 = _sharedKey('IE_PROTO');
 var ObjectProto = Object.prototype;
@@ -1255,6 +1299,10 @@ var _iterStep = function (done, value) {
   return { value: value, done: !!done };
 };
 
+// 22.1.3.4 Array.prototype.entries()
+// 22.1.3.13 Array.prototype.keys()
+// 22.1.3.29 Array.prototype.values()
+// 22.1.3.30 Array.prototype[@@iterator]()
 var es6_array_iterator = _iterDefine(Array, 'Array', function (iterated, kind) {
   this._t = _toIobject(iterated); // target
   this._i = 0;                   // next index
@@ -1296,6 +1344,8 @@ for (var i = 0; i < DOMIterables.length; i++) {
   _iterators[NAME] = _iterators.Array;
 }
 
+// getting tag from 19.1.3.6 Object.prototype.toString()
+
 var TAG$1 = _wks('toStringTag');
 // ES3 wrong here
 var ARG = _cof(function () { return arguments; }()) == 'Arguments';
@@ -1324,6 +1374,8 @@ var _anInstance = function (it, Constructor, name, forbiddenField) {
   } return it;
 };
 
+// call something on iterator step with safe closing on error
+
 var _iterCall = function (iterator, fn, value, entries) {
   try {
     return entries ? fn(_anObject(value)[0], value[1]) : fn(value);
@@ -1334,6 +1386,8 @@ var _iterCall = function (iterator, fn, value, entries) {
     throw e;
   }
 };
+
+// check on default Array iterator
 
 var ITERATOR$1 = _wks('iterator');
 var ArrayProto = Array.prototype;
@@ -1371,6 +1425,9 @@ var exports = module.exports = function (iterable, entries, fn, that, ITERATOR) 
 exports.BREAK = BREAK;
 exports.RETURN = RETURN;
 });
+
+// 7.3.20 SpeciesConstructor(O, defaultConstructor)
+
 
 var SPECIES = _wks('species');
 var _speciesConstructor = function (O, D) {
@@ -1546,6 +1603,9 @@ var _microtask = function () {
     } last = task;
   };
 };
+
+// 25.4.1.5 NewPromiseCapability(C)
+
 
 function PromiseCapability(C) {
   var resolve, reject;
@@ -1919,6 +1979,11 @@ _export(_export.P + _export.R, 'Promise', { 'finally': function (onFinally) {
   );
 } });
 
+// https://github.com/tc39/proposal-promise-try
+
+
+
+
 _export(_export.S, 'Promise', { 'try': function (callbackfn) {
   var promiseCapability = _newPromiseCapability.f(this);
   var result = _perform(callbackfn);
@@ -1991,6 +2056,7 @@ exports.default = function (instance, Constructor) {
 
 var _classCallCheck = unwrapExports(classCallCheck);
 
+// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
 _export(_export.S + _export.F * !_descriptors, 'Object', { defineProperty: _objectDp.f });
 
 var $Object = _core.Object;
@@ -2218,6 +2284,10 @@ var _objectPie = {
 	f: f$4
 };
 
+// all enumerable object keys, includes symbols
+
+
+
 var _enumKeys = function (it) {
   var result = _objectKeys(it);
   var getSymbols = _objectGops.f;
@@ -2230,9 +2300,13 @@ var _enumKeys = function (it) {
   } return result;
 };
 
+// 7.2.2 IsArray(argument)
+
 var _isArray = Array.isArray || function isArray(arg) {
   return _cof(arg) == 'Array';
 };
+
+// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
 
 var hiddenKeys = _enumBugKeys.concat('length', 'prototype');
 
@@ -2243,6 +2317,8 @@ var f$6 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 var _objectGopn = {
 	f: f$6
 };
+
+// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
 
 var gOPN$1 = _objectGopn.f;
 var toString$1 = {}.toString;
@@ -2280,6 +2356,12 @@ var f$7 = _descriptors ? gOPD$1 : function getOwnPropertyDescriptor(O, P) {
 var _objectGopd = {
 	f: f$7
 };
+
+// ECMAScript 6 symbols shim
+
+
+
+
 
 var META = _meta.KEY;
 
@@ -2558,6 +2640,7 @@ var Query = function () {
     _classCallCheck(this, Query);
 
     this.selector = selector;
+    this._polyfillPrepend();
     return this;
   }
 
@@ -2670,10 +2753,8 @@ var Query = function () {
      * @returns {NodeList}
      */
     value: function stringToElement(content) {
-      var template = document.createElement('template');
       content = content.trim();
-      template.innerHTML = content;
-      return template.content;
+      return document.createRange().createContextualFragment(content);
     }
 
     /**
@@ -2847,6 +2928,29 @@ var Query = function () {
         node.style[name] = value;
       });
       return this;
+    }
+  }, {
+    key: '_polyfillPrepend',
+    value: function _polyfillPrepend() {
+      [Element.prototype, Document.prototype, DocumentFragment.prototype].forEach(function (item) {
+        if (item.hasOwnProperty('prepend')) {
+          return;
+        }
+        Object.defineProperty(item, 'prepend', {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: function prepend() {
+            var argArr = Array.prototype.slice.call(arguments);
+            var docFrag = document.createDocumentFragment();
+            argArr.forEach(function (argItem) {
+              var isNode = argItem instanceof Node;
+              docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
+            });
+            this.insertBefore(docFrag, this.firstChild);
+          }
+        });
+      });
     }
   }, {
     key: 'nodeList',
