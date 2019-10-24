@@ -2554,6 +2554,7 @@ var Query = function () {
     _classCallCheck(this, Query);
 
     this.selector = selector;
+    this._polyfillPrepend();
     return this;
   }
 
@@ -2666,10 +2667,25 @@ var Query = function () {
      * @returns {NodeList}
      */
     value: function stringToElement(content) {
-      var template = document.createElement('template');
       content = content.trim();
-      template.innerHTML = content;
-      return template.content;
+      return document.createRange().createContextualFragment(content);
+      /*
+          if ('contenta' in document.createElement('template')) {
+            const template = document.createElement('template');
+            content = content.trim();
+            template.innerHTML = content;
+            console.log(template);
+            console.log(template.content);
+            return template.content;
+          } else {
+            //let c = new DOMParser().parseFromString(content, 'text/html').body.childNodes;
+            //console.log(c);
+            content = content.trim();
+            let frag = document.createRange().createContextualFragment(content);
+            console.log(frag);
+            return frag;
+          }
+      */
     }
 
     /**
@@ -2843,6 +2859,29 @@ var Query = function () {
         node.style[name] = value;
       });
       return this;
+    }
+  }, {
+    key: '_polyfillPrepend',
+    value: function _polyfillPrepend() {
+      [Element.prototype, Document.prototype, DocumentFragment.prototype].forEach(function (item) {
+        if (item.hasOwnProperty('prepend')) {
+          return;
+        }
+        Object.defineProperty(item, 'prepend', {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: function prepend() {
+            var argArr = Array.prototype.slice.call(arguments);
+            var docFrag = document.createDocumentFragment();
+            argArr.forEach(function (argItem) {
+              var isNode = argItem instanceof Node;
+              docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
+            });
+            this.insertBefore(docFrag, this.firstChild);
+          }
+        });
+      });
     }
   }, {
     key: 'nodeList',
