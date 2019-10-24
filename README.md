@@ -293,3 +293,16 @@ Deekay is written in ES6. To compile it for use in browsers, use Rollup. The com
 `npm run build`
 
 To create the latest docs, you can do `npm run jsdoc`
+
+## Babel / CoreJS
+
+Deekay targets modern browsers but can work all the way back to IE11 with a few polyfills. If using CoreJs 
+you'll need to include these features to work properly. Learn more here - https://github.com/zloirock/core-js
+
+```
+import 'core-js/features/array/for-each';
+import 'core-js/features/array/find';
+import 'core-js/features/promise';
+import 'core-js/web/dom-collections';
+import 'core-js/features/object/assign';
+```
