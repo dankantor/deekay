@@ -1,6 +1,6 @@
 {
   "name": "deekay",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A simple vanilla JS front-end framework with no dependencies.",
   "main": "dist/deekay.cjs.js",
   "module": "dist/deekay.esm.js",

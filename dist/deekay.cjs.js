@@ -2641,6 +2641,7 @@ var Query = function () {
 
     this.selector = selector;
     this._polyfillPrepend();
+    this._polyfillAppend();
     return this;
   }
 
@@ -2948,6 +2949,31 @@ var Query = function () {
               docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
             });
             this.insertBefore(docFrag, this.firstChild);
+          }
+        });
+      });
+    }
+  }, {
+    key: '_polyfillAppend',
+    value: function _polyfillAppend() {
+      [Element.prototype, Document.prototype, DocumentFragment.prototype].forEach(function (item) {
+        if (item.hasOwnProperty('append')) {
+          return;
+        }
+        Object.defineProperty(item, 'append', {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: function append() {
+            var argArr = Array.prototype.slice.call(arguments),
+                docFrag = document.createDocumentFragment();
+
+            argArr.forEach(function (argItem) {
+              var isNode = argItem instanceof Node;
+              docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
+            });
+
+            this.appendChild(docFrag);
           }
         });
       });
