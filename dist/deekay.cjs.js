@@ -3589,86 +3589,85 @@ var View = function () {
                 result = { 'error': true };
 
                 if (!window.fetch) {
-                  _context.next = 33;
+                  _context.next = 32;
                   break;
                 }
 
-                console.log('USING FETCH');
-                _context.prev = 4;
-                _context.next = 7;
+                _context.prev = 3;
+                _context.next = 6;
                 return fetch(uri, params);
 
-              case 7:
+              case 6:
                 response = _context.sent;
 
                 result.status = response.status;
-                _context.prev = 9;
-                _context.next = 12;
+                _context.prev = 8;
+                _context.next = 11;
                 return response.json();
 
-              case 12:
+              case 11:
                 result.data = _context.sent;
-                _context.next = 25;
+                _context.next = 24;
                 break;
 
-              case 15:
-                _context.prev = 15;
-                _context.t0 = _context['catch'](9);
-                _context.prev = 17;
-                _context.next = 20;
+              case 14:
+                _context.prev = 14;
+                _context.t0 = _context['catch'](8);
+                _context.prev = 16;
+                _context.next = 19;
                 return response.text();
 
-              case 20:
+              case 19:
                 result.data = _context.sent;
-                _context.next = 25;
+                _context.next = 24;
                 break;
 
-              case 23:
-                _context.prev = 23;
-                _context.t1 = _context['catch'](17);
+              case 22:
+                _context.prev = 22;
+                _context.t1 = _context['catch'](16);
 
-              case 25:
+              case 24:
                 if (result.status <= 400) {
                   result.error = false;
                 }
-                _context.next = 31;
+                _context.next = 30;
                 break;
 
-              case 28:
-                _context.prev = 28;
-                _context.t2 = _context['catch'](4);
+              case 27:
+                _context.prev = 27;
+                _context.t2 = _context['catch'](3);
 
                 result.data = _context.t2;
 
-              case 31:
-                _context.next = 42;
+              case 30:
+                _context.next = 41;
                 break;
 
-              case 33:
-                _context.prev = 33;
-                _context.next = 36;
+              case 32:
+                _context.prev = 32;
+                _context.next = 35;
                 return this._xhr(params);
 
-              case 36:
+              case 35:
                 result = _context.sent;
-                _context.next = 42;
+                _context.next = 41;
                 break;
 
-              case 39:
-                _context.prev = 39;
-                _context.t3 = _context['catch'](33);
+              case 38:
+                _context.prev = 38;
+                _context.t3 = _context['catch'](32);
 
                 result.data = _context.t3;
 
-              case 42:
+              case 41:
                 return _context.abrupt('return', result);
 
-              case 43:
+              case 42:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[4, 28], [9, 15], [17, 23], [33, 39]]);
+        }, _callee, this, [[3, 27], [8, 14], [16, 22], [32, 38]]);
       }));
 
       return function (_x2) {
@@ -3685,7 +3684,6 @@ var View = function () {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                console.log('USING XHR');
                 return _context2.abrupt('return', new Promise(function (resolve, reject) {
                   try {
                     var uri = _this3.getValue('uri', [params, _this3.cParams]);
@@ -3722,7 +3720,7 @@ var View = function () {
                   }
                 }));
 
-              case 2:
+              case 1:
               case 'end':
                 return _context2.stop();
             }
