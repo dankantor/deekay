@@ -25,7 +25,7 @@ it run `http-server` and open a browser to http://localhost:8080/example/.
 
 View is a class that provides a small subset of the functionality provided by Backbone. 
 
-[View Documentation](docs/View.html)
+[View Documentation](https://dankantor.github.io/deekay/View.html)
 
 ```js
   // create our variables up top
@@ -104,7 +104,7 @@ View is a class that provides a small subset of the functionality provided by Ba
 Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
 what it includes. 
 
-[View Documentation](docs/Query.html)
+[View Documentation](https://dankantor.github.io/deekay/Query.html)
 
 ```js
   const {Query} = require('deekay');
@@ -123,7 +123,7 @@ Router will listen for all clicks on anchor elements. When anchors are clicked t
 navigate to the new url, but will instead change the History state. If the anchor has `target=_self` the 
 browser will perform a full navigation. If the anchor has `target=_blank'` it will open a new tab/window. 
 
-[View Documentation](docs/Router.html)
+[View Documentation](https://dankantor.github.io/deekay/Router.html)
 
 ```js
   const {Router} = require('deekay');
@@ -168,7 +168,7 @@ All View instances automatically have the router set as a member, and will usual
 DocumentListener is rarely used directly, but rather through a View. Each view instance will get a member 
 documentListener. Each application will only have one DocumentListener created (singleton). 
 
-[View Documentation](docs/DocumentListener.html)
+[View Documentation](https://dankantor.github.io/deekay/DocumentListener.html)
 
 ```js
   const {View} = require('deekay');
@@ -217,7 +217,7 @@ EventBus is used as a global event bus for custom events.
 EventBus is rarely used directly, but rather through a View. Each view instance will get a member 
 EventBus. Each application will only have one EventBus created (singleton).
 
-[View Documentation](docs/EventBus.html)
+[View Documentation](https://dankantor.github.io/deekay/EventBus.html)
 
 ```js
   const {View} = require('deekay');
