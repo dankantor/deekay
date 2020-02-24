@@ -143,8 +143,8 @@
 
             
 
-            <td class="description last"><p>Parent element of view. Also the default element when a selector 
- is not passed in to methods. Must be a valid CSS selector string.</p></td>
+            <td class="description last"><p>Parent element of view. Also the default element when a selector
+is not passed in to methods. Must be a valid CSS selector string.</p></td>
         </tr>
 
     
@@ -312,6 +312,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -713,6 +715,8 @@ Binded methods can be accessed using this.binded.foo.</p>
 
 
 
+
+
         
             
 
@@ -728,8 +732,8 @@ Binded methods can be accessed using this.binded.foo.</p>
 
 <div class="description">
     <p>Events will be passed to <a href="DocumentListener.html#on">DocumentListener.on</a> for DOM events
- and <a href="View.html#on">View.on</a> for custom events. If Event.context is 
- not set, it will default to the View instance.</p>
+and <a href="View.html#on">View.on</a> for custom events. If Event.context is
+not set, it will default to the View instance.</p>
 </div>
 
 
@@ -845,6 +849,8 @@ Binded methods can be accessed using this.binded.foo.</p>
 
 
 
+
+
         
             
 
@@ -860,7 +866,7 @@ Binded methods can be accessed using this.binded.foo.</p>
 
 <div class="description">
     <p>Route will be passed to <a href="Router.html#add">Router.add</a>. Route.listener should be
-passed in as a string and will be changed to a method on the View instance. 
+passed in as a string and will be changed to a method on the View instance.
 (eg. 'show' -&gt; this.show).</p>
 </div>
 
@@ -977,6 +983,8 @@ passed in as a string and will be changed to a method on the View instance.
 
 
 
+
+
         
             
 
@@ -991,7 +999,8 @@ passed in as a string and will be changed to a method on the View instance.
 
 
 <div class="description">
-    <p>Wrapper for native fetch. The response is automatically parsed as JSON.</p>
+    <p>Wrapper for native fetch. The response is automatically parsed as JSON. If browser does not
+support fetch, this falls back to xhr</p>
 </div>
 
 
@@ -1138,6 +1147,8 @@ passed in as a string and will be changed to a method on the View instance.
 
     
 </dl>
+
+
 
 
 
@@ -1309,6 +1320,8 @@ passed in as a string and will be changed to a method on the View instance.
 
     
 </dl>
+
+
 
 
 
@@ -1547,6 +1560,8 @@ passed in as a string and will be changed to a method on the View instance.
 
 
 
+
+
         
             
 
@@ -1561,8 +1576,8 @@ passed in as a string and will be changed to a method on the View instance.
 
 
 <div class="description">
-    <p>Takes the passed in data object, runs it through the template function and inserts it 
-into the selector element. Passing params is optional and will default to the params passed to the 
+    <p>Takes the passed in data object, runs it through the template function and inserts it
+into the selector element. Passing params is optional and will default to the params passed to the
 view instance constructor.</p>
 </div>
 
@@ -1670,7 +1685,7 @@ view instance constructor.</p>
             
 
             <td class="description last"><p>The selector that the resulting HTML will be inserted in to.
- If none is passed in, will default to the selector passed to the Class constructor.</p></td>
+If none is passed in, will default to the selector passed to the Class constructor.</p></td>
         </tr>
 
     
@@ -1694,7 +1709,7 @@ view instance constructor.</p>
             
 
             <td class="description last"><p>A template function. If none is passed in, will default to the
- template passed to the Class constructor.</p></td>
+template passed to the Class constructor.</p></td>
         </tr>
 
     
@@ -1740,8 +1755,8 @@ view instance constructor.</p>
 
             
 
-            <td class="description last"><p>[false] - If true, will append the HTML to the selector element as 
- opposed to replacing the entire innerHTML.</p></td>
+            <td class="description last"><p>[false] - If true, will append the HTML to the selector element as
+opposed to replacing the entire innerHTML.</p></td>
         </tr>
 
     
@@ -1764,8 +1779,8 @@ view instance constructor.</p>
 
             
 
-            <td class="description last"><p>[false] - If true, will prepend the HTML to the selector element as 
- opposed to replacing the entire innerHTML.</p></td>
+            <td class="description last"><p>[false] - If true, will prepend the HTML to the selector element as
+opposed to replacing the entire innerHTML.</p></td>
         </tr>
 
     
@@ -1818,6 +1833,8 @@ view instance constructor.</p>
 
     
 </dl>
+
+
 
 
 
@@ -1989,6 +2006,8 @@ view instance constructor.</p>
 
 
 
+
+
         
     
 
@@ -2106,8 +2125,8 @@ view instance constructor.</p>
 
             
 
-            <td class="description last"><p>The callback function for when this event is triggered. Param is passed in 
- as a string and turned in to a method on the View instance (eg. 'show' -&gt; this.show).</p></td>
+            <td class="description last"><p>The callback function for when this event is triggered. Param is passed in
+as a string and turned in to a method on the View instance (eg. 'show' -&gt; this.show).</p></td>
         </tr>
 
     
@@ -2361,7 +2380,7 @@ view instance constructor.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jun 21 2019 09:23:02 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Feb 24 2020 16:29:06 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

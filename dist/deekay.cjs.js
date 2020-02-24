@@ -3558,7 +3558,8 @@ var View = function () {
 
     /**
      * @method
-     * @description Wrapper for native fetch. The response is automatically parsed as JSON.
+     * @description Wrapper for native fetch. The response is automatically parsed as JSON. If browser does not
+     *  support fetch, this falls back to xhr
      * @async
      * @param {Object} params - All params passed in will be passed to native fetch.
      * @param {string} params.uri - the remote URI.
@@ -3586,67 +3587,155 @@ var View = function () {
               case 0:
                 uri = this.getValue('uri', [params, this.cParams]);
                 result = { 'error': true };
-                _context.prev = 2;
-                _context.next = 5;
+
+                if (!window.fetch) {
+                  _context.next = 33;
+                  break;
+                }
+
+                console.log('USING FETCH');
+                _context.prev = 4;
+                _context.next = 7;
                 return fetch(uri, params);
 
-              case 5:
+              case 7:
                 response = _context.sent;
 
                 result.status = response.status;
-                _context.prev = 7;
-                _context.next = 10;
+                _context.prev = 9;
+                _context.next = 12;
                 return response.json();
 
-              case 10:
+              case 12:
                 result.data = _context.sent;
-                _context.next = 23;
+                _context.next = 25;
                 break;
 
-              case 13:
-                _context.prev = 13;
-                _context.t0 = _context['catch'](7);
+              case 15:
                 _context.prev = 15;
-                _context.next = 18;
+                _context.t0 = _context['catch'](9);
+                _context.prev = 17;
+                _context.next = 20;
                 return response.text();
 
-              case 18:
+              case 20:
                 result.data = _context.sent;
-                _context.next = 23;
+                _context.next = 25;
                 break;
 
-              case 21:
-                _context.prev = 21;
-                _context.t1 = _context['catch'](15);
-
               case 23:
+                _context.prev = 23;
+                _context.t1 = _context['catch'](17);
+
+              case 25:
                 if (result.status <= 400) {
                   result.error = false;
                 }
-                _context.next = 29;
+                _context.next = 31;
                 break;
 
-              case 26:
-                _context.prev = 26;
-                _context.t2 = _context['catch'](2);
+              case 28:
+                _context.prev = 28;
+                _context.t2 = _context['catch'](4);
 
                 result.data = _context.t2;
 
-              case 29:
+              case 31:
+                _context.next = 42;
+                break;
+
+              case 33:
+                _context.prev = 33;
+                _context.next = 36;
+                return this._xhr(params);
+
+              case 36:
+                result = _context.sent;
+                _context.next = 42;
+                break;
+
+              case 39:
+                _context.prev = 39;
+                _context.t3 = _context['catch'](33);
+
+                result.data = _context.t3;
+
+              case 42:
                 return _context.abrupt('return', result);
 
-              case 30:
+              case 43:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[2, 26], [7, 13], [15, 21]]);
+        }, _callee, this, [[4, 28], [9, 15], [17, 23], [33, 39]]);
       }));
 
       return function (_x2) {
         return _ref.apply(this, arguments);
       };
     }())
+  }, {
+    key: '_xhr',
+    value: function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(params) {
+        var _this3 = this;
+
+        return regenerator.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                console.log('USING XHR');
+                return _context2.abrupt('return', new Promise(function (resolve, reject) {
+                  try {
+                    var uri = _this3.getValue('uri', [params, _this3.cParams]);
+                    var _result = { 'error': true };
+                    var request = new XMLHttpRequest();
+                    request.addEventListener('load', function (response) {
+                      _result.status = response.target.status;
+                      try {
+                        _result.data = JSON.parse(response.target.response);
+                      } catch (err) {
+                        try {
+                          _result.data = response.target.response;
+                        } catch (err) {}
+                      }
+                      if (_result.status <= 400) {
+                        _result.error = false;
+                      }
+                      resolve(_result);
+                    });
+                    request.addEventListener('error', function (err) {
+                      _result.data = err;
+                      resolve(_result);
+                    });
+                    var method = params.method || 'GET';
+                    request.open(method, uri);
+                    if (params.headers && params.headers['content-type']) {
+                      request.setRequestHeader('Content-Type', params.headers['content-type']);
+                    }
+                    var body = params.body || null;
+                    request.send(body);
+                  } catch (err) {
+                    result.data = err;
+                    reject(result);
+                  }
+                }));
+
+              case 2:
+              case 'end':
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function _xhr(_x3) {
+        return _ref2.apply(this, arguments);
+      }
+
+      return _xhr;
+    }()
 
     /**
      * @method

@@ -43,13 +43,20 @@
 
 
     <section>
-        <article><h1>Deekay</h1><p>A simple vanilla JS front-end framework with no dependencies. </p>
-<h2>Why create 'Yet Another JS Framework'?</h2><p>I've been using Backbone and JQuery forever. I really only use a small bit of the functionality they offer. 
-So I decided to create a simple framework that only does that small bit. </p>
-<h2>Getting started</h2><pre class="prettyprint source lang-bash"><code>  npm install deekay</code></pre><p>The easiest way to get started is to jump into the <a href="example/index.html">Example App</a>. </p>
-<p>To run it, you'll need a webserver. I recommend https://<a href="http://www.npmjs.com/package/http-server">www.npmjs.com/package/http-server</a>. After installing
-it run <code>http-server</code> and open a browser to http://localhost:8080/example/. </p>
-<h2>Usage</h2><h3>View</h3><p>View is a class that provides a small subset of the functionality provided by Backbone. </p>
+        <article><h1>Deekay</h1>
+<p>A simple vanilla JS front-end framework with no dependencies.</p>
+<h2>Why create 'Yet Another JS Framework'?</h2>
+<p>I've been using Backbone and JQuery forever. I really only use a small bit of the functionality they offer.
+So I decided to create a simple framework that only does that small bit.</p>
+<h2>Getting started</h2>
+<pre class="prettyprint source lang-bash"><code>  npm install deekay
+</code></pre>
+<p>The easiest way to get started is to jump into the <a href="example/index.html">Example App</a>.</p>
+<p>To run it, you'll need a webserver. I recommend https://www.npmjs.com/package/http-server. After installing
+it run <code>http-server</code> and open a browser to http://localhost:8080/example/.</p>
+<h2>Usage</h2>
+<h3>View</h3>
+<p>View is a class that provides a small subset of the functionality provided by Backbone.</p>
 <p><a href="docs/View.html">View Documentation</a></p>
 <pre class="prettyprint source lang-js"><code>  // create our variables up top
   const {View} = require('deekay');
@@ -62,15 +69,15 @@ it run <code>http-server</code> and open a browser to http://localhost:8080/exam
   const uri = '/api/search';
   const route = {'pathname': '/search/:query', 'name': 'Search', 'listener': 'show'};
   const binded = ['refresh'];
-
+  
   // extend the View class
   class SearchView extends View {
-
+    
     // pass in all our variables to the parent View
     constructor() {
       super({selector, template, events, route, uri, binded});
     }
-
+    
     // callback when our route is triggered. Grab the 'query' property from params and render 
     // it in our template. The template will be inserted into #content. Notice that 'this' 
     // is already set to the SearchView instance. 
@@ -82,7 +89,7 @@ it run <code>http-server</code> and open a browser to http://localhost:8080/exam
         }
       });
     }
-
+    
     // callback when our form is submitted. Call our API with the query using this.fetch.
     // The uri for fetch has already been set up top. If there is an error, the returned object
     // from this.fetch will have the 'error' property set to true. 
@@ -100,13 +107,13 @@ it run <code>http-server</code> and open a browser to http://localhost:8080/exam
       }
       return false; 
     }
-
+    
     // callback when a custom 'search:refresh' event is fired from another view because we 
     // included it in our events array up top.
     onRefresh(e, target) {
       setTimeout(this.binded.refresh, 500);
     }
-
+    
     // refresh called from our setTimeout above. Notice that 'this' is already set to the SearchView 
     // instance because we set it in the binded array up top and used 'this.binded.refresh'.
     refresh() {
@@ -116,140 +123,174 @@ it run <code>http-server</code> and open a browser to http://localhost:8080/exam
         }
       }); 
     }
-
+    
   }
-
-  export {SearchView}</code></pre><h3>Query</h3><p>Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
-what it includes. </p>
+  
+  export {SearchView}
+</code></pre>
+<h3>Query</h3>
+<p>Query is a class that provides a small subset of the functionality provided by jQuery. View the docs to see
+what it includes.</p>
 <p><a href="docs/Query.html">View Documentation</a></p>
 <pre class="prettyprint source lang-js"><code>  const {Query} = require('deekay');
-
+  
   const el = new Query('#some-id');
   el.addClass('myclass');
-  el.text = 'Some new text';</code></pre><h3>Router</h3><p>Router listens to browser location changes and fires when a known route is matched. If there is no match, a
+  el.text = 'Some new text';
+</code></pre>
+<h3>Router</h3>
+<p>Router listens to browser location changes and fires when a known route is matched. If there is no match, a
 'router:nomatch' event will be fired.</p>
-<p>Router will listen for all clicks on anchor elements. When anchors are clicked the browser will not 
-navigate to the new url, but will instead change the History state. If the anchor has <code>target=_self</code> the 
-browser will perform a full navigation. If the anchor has <code>target=_blank'</code> it will open a new tab/window. </p>
+<p>Router will listen for all clicks on anchor elements. When anchors are clicked the browser will not
+navigate to the new url, but will instead change the History state. If the anchor has <code>target=_self</code> the
+browser will perform a full navigation. If the anchor has <code>target=_blank'</code> it will open a new tab/window.</p>
 <p><a href="docs/Router.html">View Documentation</a></p>
 <pre class="prettyprint source lang-js"><code>  const {Router} = require('deekay');
-
+  
   // create a new router. It is a singleton and only one router can be created in an application.
   const router = new Router();
-
+  
   // call this after all views are created to trigger the initial route. 
-  router.execute();</code></pre><p>All View instances automatically have the router set as a member, and will usually be accessed that way.</p>
+  router.execute();
+</code></pre>
+<p>All View instances automatically have the router set as a member, and will usually be accessed that way.</p>
 <pre class="prettyprint source lang-js"><code>  const {View} = require('deekay');
   const template = require('./templates/not-found.hbs');
   const events = [
     {'type': 'router:nomatch', 'listener': 'show'},
     {'type': 'click', 'selector': '#home', 'listener': 'onClick'}
   ];
-
+  
   class NotFoundView extends View {
-
+    
     constructor() {
       super({events});
     }
-
+    
     show(params) {
       this.render();
     }
-
+    
     // #home was clicked. Navigate our router to '/'.
     onClick(e, target) {
       this.router.navigate({'href': '/'});
     }  
-
-  }</code></pre><h3>DocumentListener</h3><p>DocumentListener is rarely used directly, but rather through a View. Each view instance will get a member 
-documentListener. Each application will only have one DocumentListener created (singleton). </p>
+     
+  }
+</code></pre>
+<h3>DocumentListener</h3>
+<p>DocumentListener is rarely used directly, but rather through a View. Each view instance will get a member
+documentListener. Each application will only have one DocumentListener created (singleton).</p>
 <p><a href="docs/DocumentListener.html">View Documentation</a></p>
 <pre class="prettyprint source lang-js"><code>  const {View} = require('deekay');
-
+  
   // events added here with a selector property will be passed to the documentListener.on method
   const events = [
     {'type': 'click', 'selector': '#home', 'listener': 'onClick'}
   ];
-
+  
   class NotFoundView extends View {
-
+    
     constructor() {
       super({events});
     }
-
+    
     // #home was clicked. We can add a class to it.
     onClick(e, target) {
       target.addClass('active');
     } 
-
+    
     // We can add listeners this way as well
     addListener() {
       this.documentListener.on('click', '#some-id', (e, target) => {
         target.addClass('active');
       }, this);
     } 
-
-  }</code></pre><p>If you do want to use DocumentListener outside of a View.</p>
+     
+  }
+</code></pre>
+<p>If you do want to use DocumentListener outside of a View.</p>
 <pre class="prettyprint source lang-js"><code>  const {DocumentListener} = require('deekay');
-
+  
   let documentListener = new DocumentListener();
   documentListener.on('click', '#some-id', (e, target) => {
     target.addClass('active');
-  }, this);</code></pre><h3>EventBus</h3><p>EventBus is used as a global event bus for custom events. </p>
-<p>EventBus is rarely used directly, but rather through a View. Each view instance will get a member 
+  }, this);
+</code></pre>
+<h3>EventBus</h3>
+<p>EventBus is used as a global event bus for custom events.</p>
+<p>EventBus is rarely used directly, but rather through a View. Each view instance will get a member
 EventBus. Each application will only have one EventBus created (singleton).</p>
 <p><a href="docs/EventBus.html">View Documentation</a></p>
 <pre class="prettyprint source lang-js"><code>  const {View} = require('deekay');
-
+  
   // events added here without a selector property are considered custom events and will be passed 
   // to the eventBus.on method
   const events = [
     {'type': 'search:refresh', 'listener': 'onRefresh'}
   ];
-
+  
   class SearchView extends View {
-
+    
     constructor() {
       super({events});
     }
-
+    
     // search:refresh was triggered 
     onRefresh(e, data) {
       console.log(data);
     } 
-
+    
     // We can add listeners for custom events this way too
     addListener() {
       this.on('search:refresh', this.onRefresh);
     } 
-
-  }</code></pre><p>Stop listening for a custom event.</p>
+     
+  }
+</code></pre>
+<p>Stop listening for a custom event.</p>
 <pre class="prettyprint source lang-js"><code>  const {View} = require('deekay');
-
+  
   class SearchView extends View { 
-
+    
     removeListener() {
       this.off('search:refresh', this.onRefresh);
     } 
-
-  }</code></pre><p>Trigger a custom event.</p>
+     
+  }
+</code></pre>
+<p>Trigger a custom event.</p>
 <pre class="prettyprint source lang-js"><code>  const {View} = require('deekay');
-
+  
   class SearchView extends View { 
-
+    
     triggerEvent() {
       this.trigger('search:refresh', data);
     } 
-
-  }</code></pre><p>If you do want to use EventBus outside of a View.</p>
+     
+  }
+</code></pre>
+<p>If you do want to use EventBus outside of a View.</p>
 <pre class="prettyprint source lang-js"><code>  const {EventBus} = require('deekay');
-
+  
   let eventBus = new EventBus();
   eventBus.on('search:refresh', (e, data) => {
     console.log(data);
-  });</code></pre><h2>Build from source</h2><p>Deekay is written in ES6. To compile it for use in browsers, use Rollup. The command to compile is - 
+  });
+</code></pre>
+<h2>Build from source</h2>
+<p>Deekay is written in ES6. To compile it for use in browsers, use Rollup. The command to compile is -
 <code>npm run build</code></p>
-<p>To create the latest docs, you can do <code>npm run jsdoc</code></p></article>
+<p>To create the latest docs, you can do <code>npm run jsdoc</code></p>
+<h2>Babel / CoreJS</h2>
+<p>Deekay targets modern browsers but can work all the way back to IE11 with a few polyfills. If using CoreJs
+you'll need to include these features to work properly. Learn more here - https://github.com/zloirock/core-js</p>
+<pre class="prettyprint source"><code>import 'core-js/features/array/for-each';
+import 'core-js/features/array/find';
+import 'core-js/features/promise';
+import 'core-js/web/dom-collections';
+import 'core-js/features/object/assign';
+</code></pre></article>
     </section>
 
 
@@ -266,7 +307,7 @@ EventBus. Each application will only have one EventBus created (singleton).</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jun 21 2019 09:23:02 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Feb 24 2020 16:29:06 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
